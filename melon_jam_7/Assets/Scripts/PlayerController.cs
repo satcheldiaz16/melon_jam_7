@@ -1,15 +1,27 @@
 
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
-
+public enum PlayerMovementState
+{
+    walk,
+    crouch,
+    sprint
+}
 public class PlayerController : MonoBehaviour
 {
+    [SerializeField] Transform camera_pos;
     [Header("Movement")]
     [SerializeField] CharacterController character_controller;
+    [SerializeField] AudioSource jump_sfx;
+    [SerializeField] AudioSource walk_sfx;
+    Coroutine walk_sfx_routine;
     [SerializeField] float move_speed = 5f;
     [SerializeField] float crouch_speed = 2f;
     [SerializeField] float sprint_speed = 8f;
     [SerializeField] float jump_height = 10f;
+    [SerializeField] float normal_height = .6f;
+    [SerializeField] float crouch_height = .3f;
     [SerializeField] float gravity = -9.81f;
     Vector2 input_movement;
     Vector3 move_dir;
@@ -17,22 +29,8 @@ public class PlayerController : MonoBehaviour
     bool jump_input_pressed;
     bool sprint_input_pressed;
     bool crouch_input_pressed;
-    [Header("Camera Rotation")]
-    [SerializeField] Camera cam;
-    [SerializeField] Transform camera_pos;
-    [SerializeField] float up_tilt_limit = -85f;
-    [SerializeField] float down_tilt_limit = 85f;
-    [SerializeField] float normal_height = .6f;
-    [SerializeField] float crouch_height = .3f;
-    float pitch;
-    Vector2 look_vec;
-    [Range(0,2f)]
-    [SerializeField] float sensitivity;
-    [Header("Snapping")]
-    [SerializeField] Animator hand_anim;
-    bool palming;
-    [SerializeField] GameObject snap_indicator;
-    [SerializeField] float max_snap_distance = 25f;
+    
+    
     void Start()
     {
         character_controller = GetComponent<CharacterController>();
@@ -41,10 +39,9 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-        CalculateLook();
+        
         CalculateMovement();
-        hand_anim.SetBool("palming", palming);
-        PositionSnapIndicator();
+        
     }
     public void OnMove(InputValue value)
     {
@@ -62,10 +59,7 @@ public class PlayerController : MonoBehaviour
     {
         crouch_input_pressed = value.isPressed;
     }
-    public void OnLook(InputValue value)
-    {
-        look_vec = value.Get<Vector2>();
-    }
+    
     float GetCameraHeight()
     {
         if(crouch_input_pressed) return crouch_height;
@@ -77,11 +71,22 @@ public class PlayerController : MonoBehaviour
         else if (sprint_input_pressed) return sprint_speed;
         return move_speed;
     }
+    float GetWalkSFXTime()
+    {
+        if(crouch_input_pressed) return .8f;
+        else if (sprint_input_pressed) return .2f;
+        else return .5f;
+    }
     void CalculateMovement()
     {
         if(character_controller.isGrounded && vertical_vel < 0)
         {
             vertical_vel = -2f;
+        }
+
+        if(walk_sfx_routine==null && input_movement != Vector2.zero && character_controller.isGrounded)
+        {
+            walk_sfx_routine = StartCoroutine(WalkSFX());
         }
 
         move_dir = new Vector3(input_movement.x, 0f, input_movement.y).normalized;
@@ -92,6 +97,7 @@ public class PlayerController : MonoBehaviour
         if (jump_input_pressed && character_controller.isGrounded)
         {
             vertical_vel = Mathf.Sqrt(jump_height * -2.0f * gravity);
+            jump_sfx.Play();
         }
         else
         {
@@ -101,37 +107,23 @@ public class PlayerController : MonoBehaviour
         final_vel.y = vertical_vel;
 
         character_controller.Move(final_vel * Time.deltaTime);
-    }
-    void CalculateLook()
-    {
-        Vector2 final_rot = look_vec * sensitivity * Time.deltaTime * 18;
-
-        transform.Rotate(Vector3.up * final_rot.x);
-        
-        pitch = Mathf.Clamp(pitch - final_rot.y, up_tilt_limit, down_tilt_limit);
-        camera_pos.localRotation = Quaternion.Euler(pitch, 0f, 0f);
 
         camera_pos.localPosition = new Vector3(0, GetCameraHeight(), 0);
     }
-    public void OnAttack(InputValue value)
+    IEnumerator WalkSFX()
     {
-        hand_anim.SetTrigger("snap");
-    }
-    public void OnAltAttack(InputValue value)
-    {
-        palming = value.isPressed;
-    }
-    void PositionSnapIndicator()
-    {
-        RaycastHit raycast_hit;
-        if(Physics.Raycast(cam.transform.position, cam.transform.forward, out raycast_hit, max_snap_distance))
+        walk_sfx.Play();
+        yield return new WaitForSeconds(GetWalkSFXTime());
+
+        if(input_movement != Vector2.zero && character_controller.isGrounded)
         {
-            snap_indicator.gameObject.SetActive(true);
-            snap_indicator.transform.position = raycast_hit.point;
+            walk_sfx_routine = StartCoroutine(WalkSFX());
         }
         else
         {
-            snap_indicator.gameObject.SetActive(false);
+            walk_sfx_routine = null;
         }
+        yield break;
     }
+    
 }
