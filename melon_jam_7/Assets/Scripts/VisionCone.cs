@@ -1,9 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+
 
 public class VisionCone : MonoBehaviour
 {
@@ -39,26 +37,5 @@ public class VisionCone : MonoBehaviour
         bool occluded = !Physics.Raycast(transform.position, to_target.normalized, out hit, to_target.magnitude, obstacle_mask);
         //Debug.Log(hit.collider.gameObject.name);
         return occluded;
-    }
-
-    void OnDrawGizmosSelected()
-    {
-        if (transform == null) return;
-
-        // range sphere
-        Gizmos.color = Color.white;
-        Gizmos.DrawWireSphere(transform.position, view_radius);
-
-        // cone edges
-        Gizmos.color = Color.yellow;
-        Vector3 left  = Quaternion.Euler(0f, -view_angle * 0.5f, 0f) * transform.forward;
-        Vector3 right = Quaternion.Euler(0f,  view_angle * 0.5f, 0f) * transform.forward;
-
-        Gizmos.DrawRay(transform.position, left  * view_radius);
-        Gizmos.DrawRay(transform.position, right * view_radius);
-
-        // arc
-        Handles.color = new Color(1f, 1f, 0f, 0.1f);
-        Handles.DrawSolidArc(transform.position, Vector3.up, left, view_angle, view_radius);
     }
 }

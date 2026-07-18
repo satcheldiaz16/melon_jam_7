@@ -49,6 +49,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Spark
   effect: {fileID: 4530867643216462752}
   light_anim: {fileID: 1153680694838020279}
+  spark_radius: 0.25
 --- !u!1 &1377335753817487152
 GameObject:
   m_ObjectHideFlags: 0
@@ -94,6 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fb4afeeb26385a840b6b97833d861f7f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::VisualTarget
+  is_player: 0
 --- !u!135 &4306549547286526736
 SphereCollider:
   m_ObjectHideFlags: 0

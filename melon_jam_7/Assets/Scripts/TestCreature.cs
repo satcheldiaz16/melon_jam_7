@@ -15,6 +15,7 @@ public class TestCreature : MonoBehaviour
     [SerializeField] float pursuit_speed;
     float pursuit_timer = 0;
     [SerializeField] float time_btwn_vision_checks = 2f;
+    [SerializeField] AudioSource target_cue;
     [Header("Vision")]
     [SerializeField] VisionCone vision;
     [SerializeField] VisualTarget current_visual_target;
@@ -42,11 +43,11 @@ public class TestCreature : MonoBehaviour
     {
         if(current_visual_target!=null && !target.is_player) return;
 
-        current_visual_target = target;
-
         SetPathToPosition(target.transform.position);
         nav_agent.speed = pursuit_speed;
         state = CreatureState.pursuit;
+
+        target_cue.Play(); //this plays repeatadly right now. Need a "spot new target" thing
     }
     void Start()
     {
