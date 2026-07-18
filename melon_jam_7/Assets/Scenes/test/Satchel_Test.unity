@@ -728,7 +728,7 @@ PrefabInstance:
       objectReference: {fileID: 775341919}
     - target: {fileID: 8468693560691253526, guid: 4364e966aef0ffb49b2b1f57403d9a80, type: 3}
       propertyPath: view_angle
-      value: 150
+      value: 100
       objectReference: {fileID: 0}
     - target: {fileID: 8468693560691253526, guid: 4364e966aef0ffb49b2b1f57403d9a80, type: 3}
       propertyPath: view_radius
