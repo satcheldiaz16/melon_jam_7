@@ -18,7 +18,10 @@ public class TestCreature : MonoBehaviour
     [SerializeField] AudioSource target_cue;
     [Header("Vision")]
     [SerializeField] VisionCone vision;
-    [SerializeField] VisualTarget current_visual_target;
+    [SerializeField] Target current_visual_target;
+    [Header("Hearing")]
+    [SerializeField] Hearing hearing;
+    [SerializeField] Target current_audio_target;
     [Header("Wander")]
     [SerializeField] float wander_speed;
     [SerializeField] float wander_location_radius = 25f;
@@ -39,7 +42,7 @@ public class TestCreature : MonoBehaviour
             vision.TargetSpotted -= SpotTarget;
         }
     }
-    void SpotTarget(VisualTarget target)
+    void SpotTarget(Target target)
     {
         if(current_visual_target!=null && !target.is_player) return;
 
@@ -47,7 +50,11 @@ public class TestCreature : MonoBehaviour
         nav_agent.speed = pursuit_speed;
         state = CreatureState.pursuit;
 
-        target_cue.Play(); //this plays repeatadly right now. Need a "spot new target" thing
+        //target_cue.Play(); //this plays repeatadly right now. Need a "spot new target" thing
+    }
+    void HeardTarget(Target target)
+    {
+        
     }
     void Start()
     {

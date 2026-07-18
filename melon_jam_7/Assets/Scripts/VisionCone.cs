@@ -5,12 +5,11 @@ using UnityEngine;
 
 public class VisionCone : MonoBehaviour
 {
-    public List<VisualTarget> targets = new List<VisualTarget>();
     [SerializeField] float view_radius = 15f;
     [SerializeField] float view_angle = 60f;   // full cone angle
     [SerializeField] LayerMask target_mask;
     [SerializeField] LayerMask obstacle_mask;
-    public event System.Action<VisualTarget> TargetSpotted;
+    public event System.Action<Target> TargetSpotted;
     void Start() => InvokeRepeating(nameof(VisionCheck), Random.Range(0f, 0.2f), 0.2f);
     void VisionCheck()
     {
@@ -20,8 +19,7 @@ public class VisionCone : MonoBehaviour
         {
             if (CanSee(col.gameObject.transform))
             {
-                Debug.Log("lets get to the bottom of this");
-                TargetSpotted?.Invoke(col.gameObject.GetComponent<VisualTarget>());
+                TargetSpotted?.Invoke(col.gameObject.GetComponent<Target>());
             }
         }
     }

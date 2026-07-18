@@ -5,6 +5,7 @@ public class Torch : MonoBehaviour
 {
     [SerializeField] ParticleSystem particles;
     [SerializeField] GameObject _light;
+    [SerializeField] AudioSource sfx;
     [SerializeField] float lit_duration = 20f;
     float put_out_timer = 0;
     bool lit;
@@ -14,6 +15,7 @@ public class Torch : MonoBehaviour
         _light.SetActive(true);
         put_out_timer = lit_duration;
         lit = true;
+        sfx.Play();
     }
     void Update()
     {
@@ -30,5 +32,6 @@ public class Torch : MonoBehaviour
         particles.Stop();
         _light.SetActive(false);
         lit = false;
+        sfx.Stop();
     }
 }

@@ -1,6 +1,6 @@
 using UnityEngine;
 
-public class VisualTarget : MonoBehaviour
+public class Target : MonoBehaviour
 {
     public bool is_player;
 }
