@@ -1,13 +1,17 @@
+using System.Collections;
 using UnityEngine;
 
 public class Spark : MonoBehaviour
 {
     [SerializeField] ParticleSystem effect;
     [SerializeField] Animator light_anim;
-    public void Ignite(Vector3 position)
+    IEnumerator Start()
     {
-        transform.position = position;
-
+        yield return new WaitForSeconds(3f);
+        Destroy(gameObject);
+    }
+    public void Ignite()
+    {
         light_anim.SetTrigger("spark");
         effect.Play();
     }

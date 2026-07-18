@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] CharacterController character_controller;
     [SerializeField] AudioSource jump_sfx;
     [SerializeField] AudioSource walk_sfx;
+    float walk_sfx_timer;
     Coroutine walk_sfx_routine;
     [SerializeField] float move_speed = 5f;
     [SerializeField] float crouch_speed = 2f;
@@ -29,8 +30,6 @@ public class PlayerController : MonoBehaviour
     bool jump_input_pressed;
     bool sprint_input_pressed;
     bool crouch_input_pressed;
-    
-    
     void Start()
     {
         character_controller = GetComponent<CharacterController>();
@@ -39,9 +38,8 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-        
         CalculateMovement();
-        
+        HandleWalkSFX();
     }
     public void OnMove(InputValue value)
     {
@@ -84,11 +82,6 @@ public class PlayerController : MonoBehaviour
             vertical_vel = -2f;
         }
 
-        if(walk_sfx_routine==null && input_movement != Vector2.zero && character_controller.isGrounded)
-        {
-            walk_sfx_routine = StartCoroutine(WalkSFX());
-        }
-
         move_dir = new Vector3(input_movement.x, 0f, input_movement.y).normalized;
         move_dir = transform.TransformDirection(move_dir);
 
@@ -110,20 +103,16 @@ public class PlayerController : MonoBehaviour
 
         camera_pos.localPosition = new Vector3(0, GetCameraHeight(), 0);
     }
-    IEnumerator WalkSFX()
+    void HandleWalkSFX()
     {
-        walk_sfx.Play();
-        yield return new WaitForSeconds(GetWalkSFXTime());
-
-        if(input_movement != Vector2.zero && character_controller.isGrounded)
+        if(walk_sfx_timer > 0)
         {
-            walk_sfx_routine = StartCoroutine(WalkSFX());
+            walk_sfx_timer-=Time.deltaTime;
         }
-        else
+        else if(input_movement != Vector2.zero && character_controller.isGrounded)
         {
-            walk_sfx_routine = null;
+            walk_sfx.Play();
+            walk_sfx_timer = GetWalkSFXTime();
         }
-        yield break;
     }
-    
 }

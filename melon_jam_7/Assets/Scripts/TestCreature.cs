@@ -1,21 +1,63 @@
 using UnityEngine;
 using UnityEngine.AI;
 
+public enum CreatureState
+{
+    idle, wander, pursuit, stunned
+}
 public class TestCreature : MonoBehaviour
 {
     [SerializeField] NavMeshAgent nav_agent;
     [SerializeField] PlayerController player;
     [SerializeField] float wander_location_radius = 25f;
+    [SerializeField] CreatureState state;
+    [SerializeField] float wander_speed;
+    [SerializeField] float pursuit_speed;
+    [SerializeField] VisionCone vision;
+    void OnEnable()
+    {
+        if (vision)
+        {
+            vision.TargetSpotted += SpotTarget;
+        }
+    }
+    void OnDisable()
+    {
+        if (vision)
+        {
+            vision.TargetSpotted -= SpotTarget;
+        }
+    }
+    void SpotTarget(VisualTarget target)
+    {
+        SetPathToPosition(target.transform.position);
+    }
     void Start()
     {
         TestPathToPlayer();
     }
+    void EnterStunnedState()
+    {
+        state = CreatureState.stunned;
+
+
+    }
     void Update()
     {
+        /*
         if (HasArrived())
         {
-            
+            NavMeshPath path = new NavMeshPath();
+            nav_agent.CalculatePath(PickWanderLocation(), path);
+            nav_agent.SetPath(path);
         }
+        */
+    }
+    void SetPathToPosition(Vector3 position)
+    {
+        NavMeshPath path = new NavMeshPath();
+        nav_agent.CalculatePath(position, path);
+        nav_agent.SetPath(path);
     }
     void TestPathToPlayer()
     {
@@ -37,20 +79,18 @@ public class TestCreature : MonoBehaviour
         }
         return false;
     }
-    void PickWanderLocation()
+    Vector3 PickWanderLocation()
     {
-        Vector2 xz_pos = new Vector2(
-            transform.position.x,
-            transform.position.z
-        );
-        Vector2 rand_offset = new Vector2(
-            Random.Range(-wander_location_radius, wander_location_radius),
-            Random.Range(-wander_location_radius, wander_location_radius)
-        );
+        for (int i = 0; i < 25; i++)
+        {
+            Vector2 rand_offset = Random.insideUnitCircle * wander_location_radius;
 
-        Vector2 check_pos = xz_pos+rand_offset;
-        
-        NavMeshHit hit = new NavMeshHit();
-        NavMesh.SamplePosition(check_pos, out hit, 10, NavMesh.AllAreas);
+            Vector3 check_pos = transform.position + new Vector3(rand_offset.x, 0f, rand_offset.y);
+
+            if (NavMesh.SamplePosition(check_pos, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+                return hit.position;
+        }
+
+        return transform.position; // fallback: no valid spot found
     }
 }
