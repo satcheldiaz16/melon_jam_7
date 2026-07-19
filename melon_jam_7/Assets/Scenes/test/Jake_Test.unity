@@ -14,7 +14,7 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 1
+  m_Fog: 0
   m_FogColor: {r: 0.05629228, g: 0.057335097, b: 0.103773594, a: 1}
   m_FogMode: 2
   m_FogDensity: 0.117
@@ -1973,19 +1973,23 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::TestCreature
   nav_agent: {fileID: 775341924}
-  player: {fileID: 1689057757}
   state: 1
+  can_be_stunned: 1
+  stunned_time: 5
+  stunned_sfx: {fileID: 0}
+  time_to_remain_disinterested: 30
   pursuit_speed: 7
-  time_btwn_vision_checks: 1
+  time_btwn_target_checks: 2
+  checks_before_target_loss: 3
   target_cue: {fileID: 934848063}
+  pursuit_sfx: {fileID: 0}
   vision: {fileID: 0}
-  current_visual_target: {fileID: 0}
   hearing: {fileID: 378043689}
-  current_audio_target: {fileID: 0}
   wander_speed: 3.5
   wander_location_radius: 25
   min_idle_time: 1
   max_idle_time: 5
+  walk_sfx: {fileID: 0}
 --- !u!1001 &828629840
 PrefabInstance:
   m_ObjectHideFlags: 0
