@@ -5,8 +5,8 @@ public class BabyFearCon : MonoBehaviour
 {
     private BabyManager baby;
     private bool setAfraid;
-    [SerializeField] float CheckFearInterval;
-    [SerializeField] float litThreshold;
+    [SerializeField] float checkFearInterval = .15f;
+    [SerializeField] float litThreshold = 2f;
     public LayerMask ObstacleMask;
     
     public void Start()
@@ -19,9 +19,8 @@ public class BabyFearCon : MonoBehaviour
     {
         while (this.gameObject.activeSelf)
         {
-            //Debug.Log("Checking fear");
             CheckIn();
-            yield return new WaitForSeconds(CheckFearInterval);
+            yield return new WaitForSeconds(checkFearInterval);
         }
     }
 

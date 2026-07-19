@@ -1,21 +1,22 @@
 using UnityEngine;
 using System.Collections;
-using System.Security;
-using System.Diagnostics.Contracts;
+
 
 public class BabyManager : MonoBehaviour
 { 
     [Header("Fear")]
     public float fear = 0;
     public bool isAfraid = false;
-    [SerializeField] float maxFear;
-    [SerializeField] float fearLimit;
-    [SerializeField] float fearGain;
+    public float numToScare = 50;
+    [SerializeField] public float maxFear = 200f;
+    [SerializeField] public float fearLimit = 100f;
+    [SerializeField] float fearGain = 5f;
+    [Header("UI")]
+    [SerializeField] private FearMeter fearMeter;
 
     [Header("Timers")]
-    [SerializeField] float actionTime;
-    [SerializeField] float fearGainInterval;
-    [SerializeField] float RandEventTimer;
+    [SerializeField] float actionTime = 5f;
+    [SerializeField] float fearGainInterval = 1f;
 
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
@@ -29,6 +30,7 @@ public class BabyManager : MonoBehaviour
 
     public void Start()
     {
+        if (fearMeter == null) fearMeter = Object.FindFirstObjectByType<FearMeter>();
         StartCoroutine(Action());
     }
 
@@ -36,6 +38,7 @@ public class BabyManager : MonoBehaviour
     {
         while (this.gameObject.activeSelf)
         {
+            //Debug.Log("Deciding Action");
             DecideAction();
             yield return new WaitForSeconds(actionTime);
         }
@@ -43,25 +46,20 @@ public class BabyManager : MonoBehaviour
 
     public void DecideAction()
     {
+        Debug.Log("Action Called, Afraid status is " + isAfraid);
         if (isAfraid)
         {
             if (fear >= fearLimit)
             {
                 // baby is scared and crying
+                Debug.Log("Deciding Afraid + crying");
                 audioSource.clip = (GetRandomLine(cryLines));
                 audioSource.Play();
-                while(isAfraid && fear >= fearLimit)
-                {
-                    if (!audioSource.isPlaying)
-                    {
-                        audioSource.clip = (GetRandomLine(cryLines));
-                        audioSource.Play();
-                    }
-                }
             }
-            else
+            else if (fear >= numToScare)
             {
                 // baby is afraid but not crying
+                Debug.Log("Deciding Afraid but not crying");
                 audioSource.clip = (GetRandomLine(scaredLines));
                 audioSource.Play();
             }
@@ -69,6 +67,7 @@ public class BabyManager : MonoBehaviour
         else
         {
             // chill
+            Debug.Log("Deciding chilling");
             audioSource.clip = (GetRandomLine(chillLines));
             audioSource.Play();
         }
@@ -82,6 +81,8 @@ public class BabyManager : MonoBehaviour
             if (fear < maxFear)
             {
                 fear += fearGain;
+                fear = Mathf.Clamp(fear, 0f, maxFear);
+                if (fearMeter != null) fearMeter.UpdateUI(fear);
             }
             yield return new WaitForSeconds(fearGainInterval);
         }
@@ -95,6 +96,8 @@ public class BabyManager : MonoBehaviour
         while (!isAfraid)
         {
             fear -= fearGain;
+            fear = Mathf.Clamp(fear, 0f, maxFear);
+            if (fearMeter != null) fearMeter.UpdateUI(fear);
             yield return new WaitForSeconds(fearGainInterval);
         }
         calmCoroutine = null;
@@ -112,8 +115,7 @@ public class BabyManager : MonoBehaviour
                 calmCoroutine = null;
             }
 
-            StartCoroutine(GetScared());
-
+            fearCoroutine = StartCoroutine(GetScared());
         }
         else if (!isAfraid && calmCoroutine == null)
         {
@@ -122,13 +124,14 @@ public class BabyManager : MonoBehaviour
                 StopCoroutine(fearCoroutine);
                 fearCoroutine = null;
             }
-            StartCoroutine(GetCalm());
+            calmCoroutine = StartCoroutine(GetCalm());
         }
     }
 
-    public static AudioClip GetRandomLine(AudioClip[] randomLines)
+    public static AudioClip GetRandomLine(AudioClip[] getLine)
     {
-        return randomLines[Random.Range(0, randomLines.Length)];
+        int index = Random.Range(0, randomLines.Length);
+        return getLine[index];
     }
 
    
