@@ -1,4 +1,5 @@
-using Unity.VisualScripting;
+using System.Collections.Generic;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
 
@@ -11,90 +12,169 @@ public class TestCreature : MonoBehaviour
     [SerializeField] NavMeshAgent nav_agent;
     [SerializeField] PlayerController player;
     [SerializeField] CreatureState state;
+    [Header("Stunned")]
+    [SerializeField] bool can_be_stunned = true;
+    [SerializeField] float stunned_time = 5f;
+    float stunned_timer = 0;
+    [SerializeField] AudioSource stunned_sfx;
     [Header("Pursuit")]
+    [SerializeField] List<Target> disinterested = new List<Target>();
+    [SerializeField] float time_to_remain_disinterested = 30f;
     [SerializeField] float pursuit_speed;
     float pursuit_timer = 0;
-    [SerializeField] float time_btwn_vision_checks = 2f;
+    [SerializeField] float time_btwn_target_checks = 2f;
+    [SerializeField] int checks_before_target_loss = 3;
+    int current_num_of_checks = 0;
     [SerializeField] AudioSource target_cue;
+    [SerializeField] AudioSource pursuit_sfx;
     [Header("Vision")]
     [SerializeField] VisionCone vision;
     [SerializeField] Target current_visual_target;
     [Header("Hearing")]
     [SerializeField] Hearing hearing;
     [SerializeField] Target current_audio_target;
+    [SerializeField] List<Target> targets_currently_heard = new List<Target>();
     [Header("Wander")]
     [SerializeField] float wander_speed;
     [SerializeField] float wander_location_radius = 25f;
     [SerializeField] float min_idle_time = 1f;
     [SerializeField] float max_idle_time = 5f;
     float wander_timer = 0;
+    bool pursuing_visually => current_visual_target != null;
+    bool pursuing_audibly => current_audio_target != null && !pursuing_visually;
     void OnEnable()
     {
         if (vision)
         {
-            vision.TargetSpotted += SpotTarget;
+            vision.TargetSpotted += See;
         }
         if (hearing)
         {
-            hearing.TargetHeard += HeardTarget;
+            hearing.TargetHeard += Hear;
         }
     }
     void OnDisable()
     {
         if (vision)
         {
-            vision.TargetSpotted -= SpotTarget;
+            vision.TargetSpotted -= See;
         }
         if (hearing)
         {
-            hearing.TargetHeard -= HeardTarget;
+            hearing.TargetHeard -= Hear;
         }
     }
-    void SpotTarget(Target target)
+    void SetPathToPosition(Vector3 position)
     {
-        if(current_visual_target!=null && !target.is_player) return;
-
-        SetPathToPosition(target.transform.position);
-        nav_agent.speed = pursuit_speed;
-        state = CreatureState.pursuit;
-
-        //target_cue.Play(); //this plays repeatadly right now. Need a "spot new target" thing
-    }
-    void HeardTarget(Target target)
-    {
-        if(current_audio_target == target) return;
-
-        current_audio_target = target;
-
-        Debug.Log("heard");
-
-        SetPathToPosition(target.transform.position);
-        nav_agent.speed = pursuit_speed;
-        state = CreatureState.pursuit;
-    }
-    void Start()
-    {
-        
-    }
-    void EnterStunnedState()
-    {
-        state = CreatureState.stunned;
-    }
-    void Update()
-    {
-        switch (state)
+        NavMeshPath path = new NavMeshPath();
+        if(!nav_agent.CalculatePath(position, path))
         {
-            case CreatureState.wander: UpdateWander(); break;
-            case CreatureState.pursuit: UpdatePursuit(); break;
+            if(
+                NavMesh.SamplePosition(
+                    position,
+                    out NavMeshHit hit,
+                    5f,
+                    NavMesh.AllAreas
+                )
+            )
+            {
+                nav_agent.CalculatePath(hit.position, path);
+            }
+            else
+            {
+                Debug.LogError("Pathfinding failed on agent " + gameObject.name);
+                return;
+            }
         }
+        nav_agent.SetPath(path);
+    }
+    bool HasArrived()
+    {
+        if (!nav_agent.pathPending)
+        {
+            if (nav_agent.remainingDistance <= nav_agent.stoppingDistance)
+            {
+                if (!nav_agent.hasPath || nav_agent.velocity.sqrMagnitude == 0f)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    void See(List<Target> targets)
+    {
+        if(targets.Count < 1 || state == CreatureState.stunned) return;
+
+        if (targets[0].is_player && (!pursuing_visually || !current_visual_target.is_player))
+        {
+            current_visual_target = targets[0];
+            BeginPursuit(targets[0]);
+            return;
+        }
+
+        if(pursuing_visually) return;
+
+        foreach(Target target in targets)
+        {
+            if(!target.is_player && disinterested.Contains(target))
+            {
+                continue;
+            }
+
+            current_visual_target = target;
+            BeginPursuit(target);
+            break;
+        }
+    }
+    void Hear(List<Target> targets)
+    {
+        if(state == CreatureState.stunned) return;
+
+        targets_currently_heard = targets;
+
+        if(targets.Count < 1 || pursuing_visually || pursuing_audibly) return;
+
+        foreach(Target target in targets)
+        {
+            if(!target.is_player && disinterested.Contains(target))
+            {
+                continue;
+            }
+
+            current_audio_target = target;
+            BeginPursuit(target);
+            break;
+        }
+    }
+    void BeginPursuit(Target target)
+    {
+        SetPathToPosition(target.transform.position);
+        nav_agent.speed = pursuit_speed;
+        state = CreatureState.pursuit;
+        target_cue.Play();
+
+        pursuit_sfx.Play();
+    }
+    void EndPursuit()
+    {
+        if(pursuing_visually) AddToDisinterests(current_visual_target);
+        else AddToDisinterests(current_audio_target);
+
+        pursuit_timer = time_btwn_target_checks;
+
+        current_visual_target = null;
+        current_audio_target = null;
+
+        state = CreatureState.wander;
+
+        pursuit_sfx.Stop();
     }
     void UpdatePursuit()
     {
         if (HasArrived())
         {
-            pursuit_timer = time_btwn_vision_checks;
-            state = CreatureState.wander;
-            current_visual_target = null;
+            EndPursuit();
             return;
         }
 
@@ -104,13 +184,113 @@ public class TestCreature : MonoBehaviour
             return;
         }
 
-        if(current_visual_target != null && vision.CanSee(current_visual_target.transform))
+        if (pursuing_visually)
         {
-            SetPathToPosition(current_visual_target.transform.position);
-            Debug.Log("Checking target again");
+            if(!vision.CanSee(current_visual_target.transform))
+            {
+                current_num_of_checks++;
+                Debug.Log("lost target");
+            }
+            else
+            {
+                SetPathToPosition(current_visual_target.transform.position);
+                current_num_of_checks = 0;
+            }
         }
-        Debug.Log("End of pursuit loop");
-        pursuit_timer = time_btwn_vision_checks;
+        else if (pursuing_audibly)
+        {
+            if(!targets_currently_heard.Contains(current_audio_target))
+            {
+                current_num_of_checks++;
+                Debug.Log("cant hear target");
+            }
+            else
+            {
+                SetPathToPosition(current_audio_target.transform.position);
+                current_num_of_checks = 0;
+            }
+        }
+
+        if(current_num_of_checks > checks_before_target_loss)
+        {
+            if(pursuing_visually) current_visual_target = null;
+            else if(pursuing_audibly) current_audio_target = null;
+
+            current_num_of_checks = 0;
+        }
+
+        pursuit_timer = time_btwn_target_checks;
+    }
+   void AddToDisinterests(Target target)
+    {
+        if (target == null || target.is_player) return;
+
+        if(!disinterested.Contains(target)) disinterested.Add(target);
+        StartCoroutine(RemoveAfterDelay(target, time_to_remain_disinterested));
+    }
+    IEnumerator RemoveAfterDelay(Target target, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        for(int i = disinterested.Count-1; i>=0; i--)
+        {
+            if(disinterested[i]==null) disinterested.RemoveAt(i);
+        }
+        if (target == null) yield return null;
+        if (disinterested.Contains(target)) disinterested.Remove(target);
+    }
+    public void EnterStunnedState()
+    {
+        if(!can_be_stunned) return;
+
+        if(state == CreatureState.pursuit) EndPursuit();
+        
+        state = CreatureState.stunned;
+        current_visual_target = null;
+        current_audio_target = null;
+        nav_agent.ResetPath();
+        nav_agent.velocity = Vector3.zero;
+        stunned_timer = stunned_time;
+
+        stunned_sfx.Play();
+    }
+    void Update()
+    {
+        switch (state)
+        {
+            case CreatureState.wander: UpdateWander(); break;
+            case CreatureState.pursuit: UpdatePursuit(); break;
+            case CreatureState.stunned: UpdateStunned(); break;
+        }
+        HandleWalkSFX();
+    }
+    void UpdateStunned()
+    {
+        if(stunned_timer > 0)
+        {
+            stunned_timer-=Time.deltaTime;
+            return;
+        }
+
+        state = CreatureState.wander;
+    }
+    float walk_sfx_timer;
+    [SerializeField] AudioSource walk_sfx;
+    float GetWalkSFXTime()
+    {
+        if(state == CreatureState.pursuit) return .5f;
+        else return 1f;
+    }
+    void HandleWalkSFX()
+    {
+        if(walk_sfx_timer > 0)
+        {
+            walk_sfx_timer-=Time.deltaTime;
+        }
+        else if(nav_agent.velocity.sqrMagnitude > 0.01f)
+        {
+            walk_sfx.Play();
+            walk_sfx_timer = GetWalkSFXTime();
+        }
     }
     void UpdateWander()
     {
@@ -134,26 +314,6 @@ public class TestCreature : MonoBehaviour
                 SetPathToPosition(wander_pos);
             }
         }
-    }
-    void SetPathToPosition(Vector3 position)
-    {
-        NavMeshPath path = new NavMeshPath();
-        nav_agent.CalculatePath(position, path);
-        nav_agent.SetPath(path);
-    }
-    bool HasArrived()
-    {
-        if (!nav_agent.pathPending)
-        {
-            if (nav_agent.remainingDistance <= nav_agent.stoppingDistance)
-            {
-                if (!nav_agent.hasPath || nav_agent.velocity.sqrMagnitude == 0f)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
     }
     Vector3 PickWanderLocation()
     {

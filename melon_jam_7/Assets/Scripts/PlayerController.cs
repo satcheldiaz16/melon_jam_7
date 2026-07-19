@@ -17,7 +17,6 @@ public class PlayerController : MonoBehaviour
     [SerializeField] AudioSource walk_sfx;
     [SerializeField] GameObject pause_menu;
     float walk_sfx_timer;
-    Coroutine walk_sfx_routine;
     [SerializeField] float move_speed = 5f;
     [SerializeField] float crouch_speed = 2f;
     [SerializeField] float sprint_speed = 8f;

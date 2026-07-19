@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using System.Linq;
 
 
 public class VisionCone : MonoBehaviour
@@ -9,19 +10,37 @@ public class VisionCone : MonoBehaviour
     [SerializeField] float view_angle = 60f;   // full cone angle
     [SerializeField] LayerMask target_mask;
     [SerializeField] LayerMask obstacle_mask;
-    public event System.Action<Target> TargetSpotted;
+    public event System.Action<List<Target>> TargetSpotted;
     void Start() => InvokeRepeating(nameof(VisionCheck), Random.Range(0f, 0.2f), 0.2f);
     void VisionCheck()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, view_radius, target_mask);
 
+        List<Target> targets = new List<Target>();
+        Target player = null;
+
         foreach(Collider col in hits)
         {
             if (CanSee(col.gameObject.transform))
             {
-                TargetSpotted?.Invoke(col.gameObject.GetComponentInParent<Target>());
+                Target temp = col.gameObject.GetComponentInParent<Target>();
+
+                if (temp.is_player)
+                {
+                    player = temp;
+                }
+                else
+                {
+                    targets.Add(temp);
+                }
             }
         }
+
+        List<Target> sorted = targets.OrderBy(c => (c.transform.position - transform.position).sqrMagnitude).ToList();
+
+        if(player!=null) sorted.Insert(0, player);
+
+        TargetSpotted?.Invoke(sorted);
     }
     public bool CanSee(Transform target)
     {
