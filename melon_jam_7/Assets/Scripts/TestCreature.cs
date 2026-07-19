@@ -2,6 +2,8 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
+using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public enum CreatureState
 {
@@ -26,6 +28,8 @@ public class TestCreature : MonoBehaviour
     int current_num_of_checks = 0;
     [SerializeField] AudioSource target_cue;
     [SerializeField] AudioSource pursuit_sfx;
+    [SerializeField] UnityEvent begin_pursuit_callback;
+    [SerializeField] UnityEvent end_pursuit_callback;
     [Header("Vision")]
     [SerializeField] VisionCone vision;
     Target current_visual_target;
@@ -154,6 +158,8 @@ public class TestCreature : MonoBehaviour
         target_cue.Play();
 
         pursuit_sfx.Play();
+
+        begin_pursuit_callback.Invoke();
     }
     void EndPursuit()
     {
@@ -168,6 +174,8 @@ public class TestCreature : MonoBehaviour
         state = CreatureState.wander;
 
         pursuit_sfx.Stop();
+
+        end_pursuit_callback.Invoke();
     }
     void UpdatePursuit()
     {
@@ -222,7 +230,7 @@ public class TestCreature : MonoBehaviour
     }
    void AddToDisinterests(Target target)
     {
-        if (target == null || target.is_player) return;
+        if (target == null || target.is_player || target.is_creature) return;
 
         if(!disinterested.Contains(target)) disinterested.Add(target);
         StartCoroutine(RemoveAfterDelay(target, time_to_remain_disinterested));
