@@ -46,9 +46,11 @@ public class BabyManager : MonoBehaviour
 
     public void DecideAction()
     {
-        Debug.Log("Action Called, Afraid status is " + isAfraid);
+        Debug.Log($"[{GetInstanceID()}] Action Called, Afraid status is {isAfraid}");
+        Debug.Log($"[{GetInstanceID()}] Running if Statement");
         if (isAfraid)
         {
+            Debug.Log("Running if Statement");
             if (fear >= fearLimit)
             {
                 // baby is scared and crying
@@ -130,7 +132,7 @@ public class BabyManager : MonoBehaviour
 
     public static AudioClip GetRandomLine(AudioClip[] getLine)
     {
-        int index = Random.Range(0, randomLines.Length);
+        int index = Random.Range(0, getLine.Length);
         return getLine[index];
     }
 

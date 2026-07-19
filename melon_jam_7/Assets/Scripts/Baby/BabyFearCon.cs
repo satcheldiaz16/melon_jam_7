@@ -4,9 +4,9 @@ using System.Collections;
 public class BabyFearCon : MonoBehaviour
 {
     private BabyManager baby;
-    private bool setAfraid;
     [SerializeField] float checkFearInterval = .15f;
     [SerializeField] float litThreshold = 2f;
+    [SerializeField] Transform PlayerTransform;
     public LayerMask ObstacleMask;
     
     public void Start()
@@ -26,7 +26,6 @@ public class BabyFearCon : MonoBehaviour
 
     public void CheckIn()
     {
-        //Debug.Log("Is baby afraid? " + !IsLit());
         baby.CheckFear(!IsLit());
     }
 
@@ -37,19 +36,24 @@ public class BabyFearCon : MonoBehaviour
         foreach (var source in LightSource.Active)
         {
             if (source == null || source.lightComp == null) continue;
-
             Light light = source.lightComp;
             if (!light.enabled || light.intensity <= 0f) continue;
 
-            Vector3 toPlayer = transform.position - light.transform.position;
+            Vector3 toPlayer = PlayerTransform.position - light.transform.position;
             float dist = toPlayer.magnitude;
             if (dist > light.range) continue;
-
             if (light.type == LightType.Spot)
             {
                 float angle = Vector3.Angle(light.transform.forward, toPlayer);
                 if (angle > light.spotAngle * 0.5f) continue;
             }
+
+            Vector3 dir = toPlayer.normalized;
+            float skin = 0.1f;
+            if (light.TryGetComponent<Collider>(out var col))
+                skin = col.bounds.extents.magnitude + 0.05f;
+
+            Vector3 castOrigin = light.transform.position + dir * skin;
 
             if (Physics.Linecast(light.transform.position, transform.position, ObstacleMask))
                 continue;
