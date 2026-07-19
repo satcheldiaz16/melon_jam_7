@@ -32,6 +32,11 @@ public class PlayerController : MonoBehaviour
     bool jump_input_pressed;
     bool sprint_input_pressed;
     bool crouch_input_pressed;
+    [Header("Audio Target Config")]
+    [SerializeField] SphereCollider audio_target;
+    [SerializeField] float walk_radius = 10;
+    [SerializeField] float crouch_radius = 2.5f;
+    [SerializeField] float sprint_radius = 25f;
     void Start()
     {
         character_controller = GetComponent<CharacterController>();
@@ -42,6 +47,7 @@ public class PlayerController : MonoBehaviour
     {
         CalculateMovement();
         HandleWalkSFX();
+        audio_target.radius = GetAudioTargetRadius();
     }
     public void OnMove(InputValue value)
     {
@@ -79,6 +85,13 @@ public class PlayerController : MonoBehaviour
         if(crouch_input_pressed) return .8f;
         else if (sprint_input_pressed) return .2f;
         else return .5f;
+    }
+    float GetAudioTargetRadius()
+    {
+        if(input_movement==Vector2.zero) return 0;
+        if(crouch_input_pressed) return crouch_radius;
+        else if (sprint_input_pressed) return sprint_radius;
+        else return walk_radius;
     }
     void CalculateMovement()
     {

@@ -26,10 +26,8 @@ public class PauseMenu : MonoBehaviour
     }
     public void SetVolume()
     {
-        Volume = volume_slider.value;
-        
-        float dB = Mathf.Log10(Volume) * 20;
-
+        Volume = volume_slider.value;              // now ranges 0.001 .. 10
+        float dB = Mathf.Log10(Volume) * 20f;      // log10(10)*20 = +20 at the top
         mixer.SetFloat("MasterVolume", dB);
     }
     public void SetSens()

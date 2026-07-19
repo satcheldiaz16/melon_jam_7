@@ -306,6 +306,74 @@ MonoBehaviour:
   target_mask:
     serializedVersion: 2
     m_Bits: 256
+--- !u!1 &6331528758682867291
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5324707812983696322}
+  - component: {fileID: 7799571327357966198}
+  - component: {fileID: 7581351300840452153}
+  m_Layer: 8
+  m_Name: Alert
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 0
+--- !u!4 &5324707812983696322
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6331528758682867291}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 2686694905667116757}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7799571327357966198
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6331528758682867291}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3eeeeaabef83fb448a297bb1e57013cd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Target
+  is_player: 0
+  is_creature: 0
+--- !u!135 &7581351300840452153
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6331528758682867291}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 50
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6581762694249384269
 GameObject:
   m_ObjectHideFlags: 0
@@ -478,6 +546,7 @@ Transform:
   - {fileID: 3298981580409222982}
   - {fileID: 5257035230005939658}
   - {fileID: 3730853316068273876}
+  - {fileID: 5324707812983696322}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: -37.187, z: 0}
 --- !u!33 &4783959408519242672
@@ -575,14 +644,44 @@ MonoBehaviour:
   nav_agent: {fileID: 3447964073983034534}
   state: 1
   can_be_stunned: 1
-  stunned_time: 5
+  stunned_time: 10
   stunned_sfx: {fileID: 6154041957574712088}
   time_to_remain_disinterested: 30
-  pursuit_speed: 7
+  pursuit_speed: 6
   time_btwn_target_checks: 0.5
   checks_before_target_loss: 5
   target_cue: {fileID: 8169002800486828845}
   pursuit_sfx: {fileID: 5076155281673401527}
+  begin_pursuit_callback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6331528758682867291}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 1
+        m_CallState: 2
+  end_pursuit_callback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 6331528758682867291}
+        m_TargetAssemblyTypeName: UnityEngine.GameObject, UnityEngine
+        m_MethodName: SetActive
+        m_Mode: 6
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   vision: {fileID: 1524259657764425280}
   hearing: {fileID: 4591996308970732418}
   wander_speed: 3.5
@@ -604,7 +703,7 @@ NavMeshAgent:
   m_Acceleration: 8
   avoidancePriority: 50
   m_AngularSpeed: 360
-  m_StoppingDistance: 5
+  m_StoppingDistance: 10
   m_AutoTraverseOffMeshLink: 1
   m_AutoBraking: 1
   m_AutoRepath: 1

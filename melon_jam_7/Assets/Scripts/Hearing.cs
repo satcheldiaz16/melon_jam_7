@@ -13,18 +13,27 @@ public class Hearing : MonoBehaviour
     void HearingCheck()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, hearing_radius, target_mask);
-        Target[] targets = new Target[hits.Length];
+        
+        List<Target> targets = new List<Target>();
+        Target player = null;
 
-        for(int i = 0; i < hits.Length; i++)
+        foreach(Collider col in hits)
         {
-            targets[i] = hits[i].gameObject.GetComponentInParent<Target>();
+            Target temp = col.gameObject.GetComponentInParent<Target>();
+
+            if (temp.is_player)
+            {
+                player = temp;
+            }
+            else
+            {
+                targets.Add(temp);
+            }
         }
 
-        List<Target> sorted = new List<Target>();
-        if(targets.Length > 0)
-        {
-            sorted = targets.OrderBy(c => (c.transform.position - transform.position).sqrMagnitude).ToList();
-        }
+        List<Target> sorted = targets.OrderBy(c => (c.transform.position - transform.position).sqrMagnitude).ToList();
+
+        if(player!=null) sorted.Insert(0, player);
         
         TargetHeard?.Invoke(sorted);
     }
