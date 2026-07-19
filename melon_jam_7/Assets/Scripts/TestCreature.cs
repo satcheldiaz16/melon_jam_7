@@ -10,15 +10,14 @@ public enum CreatureState
 public class TestCreature : MonoBehaviour
 {
     [SerializeField] NavMeshAgent nav_agent;
-    [SerializeField] PlayerController player;
     [SerializeField] CreatureState state;
     [Header("Stunned")]
     [SerializeField] bool can_be_stunned = true;
     [SerializeField] float stunned_time = 5f;
     float stunned_timer = 0;
     [SerializeField] AudioSource stunned_sfx;
+    List<Target> disinterested = new List<Target>();
     [Header("Pursuit")]
-    [SerializeField] List<Target> disinterested = new List<Target>();
     [SerializeField] float time_to_remain_disinterested = 30f;
     [SerializeField] float pursuit_speed;
     float pursuit_timer = 0;
@@ -29,11 +28,11 @@ public class TestCreature : MonoBehaviour
     [SerializeField] AudioSource pursuit_sfx;
     [Header("Vision")]
     [SerializeField] VisionCone vision;
-    [SerializeField] Target current_visual_target;
+    Target current_visual_target;
     [Header("Hearing")]
     [SerializeField] Hearing hearing;
-    [SerializeField] Target current_audio_target;
-    [SerializeField] List<Target> targets_currently_heard = new List<Target>();
+    Target current_audio_target;
+    List<Target> targets_currently_heard = new List<Target>();
     [Header("Wander")]
     [SerializeField] float wander_speed;
     [SerializeField] float wander_location_radius = 25f;
@@ -243,7 +242,7 @@ public class TestCreature : MonoBehaviour
         if(!can_be_stunned) return;
 
         if(state == CreatureState.pursuit) EndPursuit();
-        
+
         state = CreatureState.stunned;
         current_visual_target = null;
         current_audio_target = null;
