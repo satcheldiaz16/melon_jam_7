@@ -5,6 +5,10 @@ public class Hearing : MonoBehaviour
     [SerializeField] float hearing_radius;
     [SerializeField] LayerMask target_mask;
     public event System.Action<Target> TargetHeard;
+    void Update()
+    {
+        HearingCheck();
+    }
     void HearingCheck()
     {
         Collider[] hits = Physics.OverlapSphere(transform.position, hearing_radius, target_mask);

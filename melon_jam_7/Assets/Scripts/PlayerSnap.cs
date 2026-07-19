@@ -19,6 +19,7 @@ public class PlayerSnap : MonoBehaviour
     [SerializeField] int snaps_accumulated;
     [SerializeField] bool worn_out = false;
     float snap_recovery_timer;
+    [SerializeField] bool infinite_snaps = false;
     void Update()
     {
         hand_anim.SetBool("palming", palming);
@@ -54,6 +55,8 @@ public class PlayerSnap : MonoBehaviour
         spark.GetComponent<Spark>().Ignite();
         
         spark_sfx.Play();
+
+        if(infinite_snaps) return;
 
         snaps_accumulated++;
         ui.SetPainLevel(snaps_accumulated);

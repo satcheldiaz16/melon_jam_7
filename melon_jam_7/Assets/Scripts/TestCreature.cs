@@ -34,12 +34,20 @@ public class TestCreature : MonoBehaviour
         {
             vision.TargetSpotted += SpotTarget;
         }
+        if (hearing)
+        {
+            hearing.TargetHeard += HeardTarget;
+        }
     }
     void OnDisable()
     {
         if (vision)
         {
             vision.TargetSpotted -= SpotTarget;
+        }
+        if (hearing)
+        {
+            hearing.TargetHeard -= HeardTarget;
         }
     }
     void SpotTarget(Target target)
@@ -54,7 +62,15 @@ public class TestCreature : MonoBehaviour
     }
     void HeardTarget(Target target)
     {
-        
+        if(current_audio_target == target) return;
+
+        current_audio_target = target;
+
+        Debug.Log("heard");
+
+        SetPathToPosition(target.transform.position);
+        nav_agent.speed = pursuit_speed;
+        state = CreatureState.pursuit;
     }
     void Start()
     {

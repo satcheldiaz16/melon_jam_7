@@ -15,6 +15,7 @@ public class PlayerController : MonoBehaviour
     [SerializeField] CharacterController character_controller;
     [SerializeField] AudioSource jump_sfx;
     [SerializeField] AudioSource walk_sfx;
+    [SerializeField] GameObject pause_menu;
     float walk_sfx_timer;
     Coroutine walk_sfx_routine;
     [SerializeField] float move_speed = 5f;
@@ -57,7 +58,10 @@ public class PlayerController : MonoBehaviour
     {
         crouch_input_pressed = value.isPressed;
     }
-    
+    public void OnMenu(InputValue value)
+    {
+        pause_menu.SetActive(true);
+    }
     float GetCameraHeight()
     {
         if(crouch_input_pressed) return crouch_height;

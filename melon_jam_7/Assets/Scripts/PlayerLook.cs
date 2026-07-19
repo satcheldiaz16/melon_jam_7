@@ -10,8 +10,6 @@ public class PlayerLook : MonoBehaviour
     [SerializeField] float down_tilt_limit = 85f;
     float pitch;
     Vector2 look_vec;
-    [Range(0,2f)]
-    [SerializeField] float sensitivity;
     void Update()
     {
         CalculateLook();
@@ -22,7 +20,7 @@ public class PlayerLook : MonoBehaviour
     }
     void CalculateLook()
     {
-        Vector2 final_rot = look_vec * sensitivity * Time.deltaTime * 18;
+        Vector2 final_rot = look_vec * PauseMenu.Sensitivity * .5f;
 
         transform.Rotate(Vector3.up * final_rot.x);
         

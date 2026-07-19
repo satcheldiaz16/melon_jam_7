@@ -7,6 +7,10 @@ public class FingerPain : MonoBehaviour
     [SerializeField] Sprite[] sprites;
     [SerializeField] Color[] colors;
     [SerializeField] TextMeshProUGUI pain_text;
+    void Start()
+    {
+        SetPainLevel(0);
+    }
     public void SetPainLevel(int idx)
     {
         kid_named.sprite = sprites[idx];
