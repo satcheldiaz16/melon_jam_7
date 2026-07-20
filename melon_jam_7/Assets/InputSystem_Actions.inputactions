@@ -506,7 +506,7 @@
                 {
                     "name": "",
                     "id": "85a1ea1c-8416-4c03-8080-e644ea46ce36",
-                    "path": "<Keyboard>/escape",
+                    "path": "<Keyboard>/p",
                     "interactions": "",
                     "processors": "",
                     "groups": "",
@@ -1042,7 +1042,7 @@
                 {
                     "name": "",
                     "id": "ef444b17-8669-4beb-ac29-e7fd97dc8472",
-                    "path": "<Keyboard>/escape",
+                    "path": "<Keyboard>/p",
                     "interactions": "",
                     "processors": "",
                     "groups": "",

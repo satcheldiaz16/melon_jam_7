@@ -11,6 +11,7 @@ public class Combustable : MonoBehaviour
     {
         if(combusted) return;
 
+        combusted = true;
         combustion_effect = Instantiate(combustion_effect_prefab, transform.position, quaternion.identity);
         Invoke("RemoveCombustable", time_until_destroyed);
     }

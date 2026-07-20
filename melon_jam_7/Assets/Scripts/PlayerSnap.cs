@@ -22,7 +22,7 @@ public class PlayerSnap : MonoBehaviour
     float snap_recovery_timer;
     [SerializeField] bool infinite_snaps = false;
     public BabyManager baby;
-    public bool snap_acquired = true;
+    public bool snap_acquired = false;
   
     void Update()
     {
@@ -76,6 +76,8 @@ public class PlayerSnap : MonoBehaviour
     }
     public void OnAltAttack(InputValue value)
     {
+        if(!snap_acquired) return;
+        
         palming = value.isPressed;
         baby.SetComfort(palming);
     }

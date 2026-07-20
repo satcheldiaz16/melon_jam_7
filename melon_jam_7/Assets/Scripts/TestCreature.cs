@@ -85,7 +85,7 @@ public class TestCreature : MonoBehaviour
                 NavMesh.SamplePosition(
                     position,
                     out NavMeshHit hit,
-                    5f,
+                    15f,
                     NavMesh.AllAreas
                 )
             )
