@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.AI;
 using UnityEngine.EventSystems;
 using UnityEngine.Events;
+using Unity.VisualScripting;
 
 public enum CreatureState
 {
@@ -45,6 +46,13 @@ public class TestCreature : MonoBehaviour
     float wander_timer = 0;
     bool pursuing_visually => current_visual_target != null;
     bool pursuing_audibly => current_audio_target != null && !pursuing_visually;
+    [Header("Death")]
+    [SerializeField] bool can_kill;
+    [SerializeField] string death_msg = "Consumed";
+    [SerializeField] float dist_to_kill = 2f;
+    [SerializeField] AudioSource kill_sfx;
+    [SerializeField] Transform kc_point;
+    [SerializeField] Animator kc_anim;
     void OnEnable()
     {
         if (vision)
@@ -163,8 +171,36 @@ public class TestCreature : MonoBehaviour
     }
     void EndPursuit()
     {
-        if(pursuing_visually) AddToDisinterests(current_visual_target);
-        else AddToDisinterests(current_audio_target);
+        bool pursuing_player = false;
+
+        if (pursuing_visually)
+        {
+            AddToDisinterests(current_visual_target);
+            pursuing_player = current_visual_target.is_player;
+        } 
+        else if (pursuing_audibly)
+        {
+            AddToDisinterests(current_audio_target);
+            pursuing_player = current_audio_target.is_player;
+        } 
+
+        if (can_kill && pursuing_player)
+        {
+            if (pursuing_visually && vision.CanSee(current_visual_target.transform))
+            {
+                if(Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill)
+                {
+                    GrabPlayer();
+                }
+            }
+            else if (pursuing_audibly && targets_currently_heard.Contains(current_audio_target))
+            {
+                if(Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill)
+                {
+                    GrabPlayer();
+                }
+            }
+        }
 
         pursuit_timer = time_btwn_target_checks;
 
@@ -335,5 +371,28 @@ public class TestCreature : MonoBehaviour
         }
 
         return transform.position; // fallback: no valid spot found
+    }
+    public void GrabPlayer()
+    {
+        if(PlayerController.instance.grabbed) return;
+
+        PlayerController.instance.EnterGrabbedState();
+
+        Camera cam = Camera.main;
+        cam.transform.position = kc_point.position;
+        cam.transform.rotation = kc_point.rotation;
+        cam.transform.parent = kc_point;
+
+        kc_anim.SetTrigger("die");
+
+        kill_sfx?.Play();
+
+        //tell player controller to enter grab state
+        //capture main camera, position at and parent to grab point
+        //play grab point animation
+    }
+    public void KillPlayer()
+    {
+        PlayerController.instance.Die(death_msg);
     }
 }
