@@ -317,7 +317,7 @@ MonoBehaviour:
   _light: {fileID: 8427665714583510978}
   sfx: {fileID: 3567100327553125178}
   target: {fileID: 7775234136942589004}
-  lit_duration: 20
+  lit_duration: 60
 --- !u!1 &7775234136942589004
 GameObject:
   m_ObjectHideFlags: 0
