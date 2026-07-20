@@ -16,7 +16,6 @@ public class NoiseController : MonoBehaviour
     [Header("UI Elements")]
     public Slider volumeBar;
     public TextMeshProUGUI decibelText;
-    public string[] ThreatLevels = new string[] { "Low", "Medium", "High", "Extreme" };
     public string[] StatusLines = new string[] { "Hidden", "Spotted" };
 
     [Header("Settings")]
@@ -25,8 +24,6 @@ public class NoiseController : MonoBehaviour
 
     [Header("Status Info")]
     public string curStatus;
-    public string curThreat;
-    public int curEnemies;
     public bool discovered = false;
     private int enemiesChasing = 0;
 
@@ -38,8 +35,6 @@ public class NoiseController : MonoBehaviour
         if (decibelText == null) decibelText = GetComponentInChildren<TextMeshProUGUI>();
 
         if (StatusLines != null && StatusLines.Length > 0) curStatus = StatusLines[0];
-        if (ThreatLevels != null && ThreatLevels.Length > 0) curThreat = ThreatLevels[0];
-        curEnemies = enemiesChasing;
     }
 
     [ContextMenu("Refresh Audio Sources")]
@@ -86,10 +81,7 @@ public class NoiseController : MonoBehaviour
                 index = changeString(GameManager.instance.creatures_pursuing_player.Count);
         }
 
-        if (ThreatLevels != null && index < ThreatLevels.Length) 
-            curThreat = ThreatLevels[index];
-
-        curEnemies = enemiesChasing;
+        
 
         if (StatusLines != null && StatusLines.Length > 1) 
             curStatus = discovered ? StatusLines[0] : StatusLines[1];

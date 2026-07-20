@@ -2944,7 +2944,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -1298, y: 38.29103}
+  m_AnchoredPosition: {x: -1336, y: 50}
   m_SizeDelta: {x: 100, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &401630130
@@ -2960,21 +2960,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   playerNoise: 0
+  trackedTags:
+  - NoiseSource
+  - Player
+  - Baby
   audioSources: []
   volumeBar: {fileID: 0}
   decibelText: {fileID: 0}
-  ThreatLevels:
-  - NA
-  - Unsafe
-  - Lethal
-  - Goodbye
   StatusLines:
   - Undetected
   - Compromised
-  smoothness: 15
+  decaySpeed: 5
   curStatus: 
-  curThreat: 
-  curEnemies: 0
   discovered: 0
 --- !u!4 &401912958 stripped
 Transform:
@@ -5693,8 +5690,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 619, y: 419}
-  m_SizeDelta: {x: 200, y: 50}
+  m_AnchoredPosition: {x: 681, y: 377}
+  m_SizeDelta: {x: 345.51, y: 50}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &731692521
 MonoBehaviour:
@@ -5729,9 +5726,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: 'Current Noise:
-
-    Status: '
+  m_text: 'Status: '
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
   m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
@@ -5797,7 +5792,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: -291.40796, w: 0}
+  m_margin: {x: 0, y: 0, z: 2.8229065, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -12403,8 +12398,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 669.97504, y: 401.388}
-  m_SizeDelta: {x: 326.384, y: 107.225}
+  m_AnchoredPosition: {x: 670.5625, y: 377}
+  m_SizeDelta: {x: 345.509, y: 61.001}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &918415079
 MonoBehaviour:
@@ -12419,14 +12414,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.3490566, g: 0.3490566, b: 0.3490566, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 0}
+  m_Sprite: {fileID: 21300000, guid: 8a155263896d5c74b9710606841dbbb1, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -12680,6 +12675,34 @@ PrefabInstance:
       propertyPath: m_IsActive
       value: 0
       objectReference: {fileID: 0}
+    - target: {fileID: 7986548295907643900, guid: 40aba6731670c5e429b09e08d4263ac7, type: 3}
+      propertyPath: cryLines.Array.size
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 7986548295907643900, guid: 40aba6731670c5e429b09e08d4263ac7, type: 3}
+      propertyPath: chillLines.Array.size
+      value: 11
+      objectReference: {fileID: 0}
+    - target: {fileID: 7986548295907643900, guid: 40aba6731670c5e429b09e08d4263ac7, type: 3}
+      propertyPath: 'cryLines.Array.data[3]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 202cf194644bd194b8934ef3d7e1e941, type: 3}
+    - target: {fileID: 7986548295907643900, guid: 40aba6731670c5e429b09e08d4263ac7, type: 3}
+      propertyPath: 'cryLines.Array.data[4]'
+      value: 
+      objectReference: {fileID: 8300000, guid: f5d005fa50c5eda4fac4e7251e92035e, type: 3}
+    - target: {fileID: 7986548295907643900, guid: 40aba6731670c5e429b09e08d4263ac7, type: 3}
+      propertyPath: 'chillLines.Array.data[8]'
+      value: 
+      objectReference: {fileID: 8300000, guid: ab5ceb6445f31684980790405499ec96, type: 3}
+    - target: {fileID: 7986548295907643900, guid: 40aba6731670c5e429b09e08d4263ac7, type: 3}
+      propertyPath: 'chillLines.Array.data[9]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 0e2e345dc496aac468e66815e72b7043, type: 3}
+    - target: {fileID: 7986548295907643900, guid: 40aba6731670c5e429b09e08d4263ac7, type: 3}
+      propertyPath: 'chillLines.Array.data[10]'
+      value: 
+      objectReference: {fileID: 8300000, guid: 115977db4d27cd2448e586e63adfddf0, type: 3}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
@@ -13659,14 +13682,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a8e4b2e728f8e474a94232f8c3fd1b1b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Hearing
-  hearing_radius: 5
+  hearing_radius: 25
   target_mask:
     serializedVersion: 2
     m_Bits: 256
-  detectableNoiseAmnt: 10
-  curSoundHeard: 0
-  showHearingSphere: 1
-  sphereColor: {r: 1, g: 0.92, b: 0.016, a: 0.25}
 --- !u!4 &1045001573
 Transform:
   m_ObjectHideFlags: 0
@@ -20074,6 +20093,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71264977d4ac11142957fc201b15f90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  noiseController: {fileID: 401630130}
+  jumpVol: 0.5
+  runVol: 0.7
+  walkVol: 0.3
+  crouchVol: 0.1
   input: {fileID: 1689057758}
   audio_target: {fileID: 843196971}
   target: {fileID: 360095269}
@@ -20143,6 +20167,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae39485f6e115c64e9cca96272e6d144, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSnap
+  noiseController: {fileID: 401630130}
+  shootVol: 0.9
   hand_anim: {fileID: 1656861408}
   ui: {fileID: 435588040}
   cam: {fileID: 727525814}
@@ -26804,7 +26830,7 @@ Transform:
   m_GameObject: {fileID: 1848875157}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: -0.31885186, z: 0, w: 0.9478046}
-  m_LocalPosition: {x: 24.9, y: 8.21, z: 19.36}
+  m_LocalPosition: {x: 30.65, y: 8.21, z: 23.72}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
   m_Children:
