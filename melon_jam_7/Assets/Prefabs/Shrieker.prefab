@@ -646,10 +646,11 @@ MonoBehaviour:
   state: 1
   can_be_stunned: 1
   stunned_time: 10
+  stunned_effect: {fileID: 7457054404186364600}
   stunned_sfx: {fileID: 6154041957574712088}
   time_to_remain_disinterested: 30
   pursuit_speed: 6
-  time_btwn_target_checks: 0.1
+  time_btwn_target_checks: 0.5
   checks_before_target_loss: 5
   target_cue: {fileID: 8169002800486828845}
   pursuit_sfx: {fileID: 5076155281673401527}
@@ -1330,7 +1331,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 9162758079003802859, guid: 4364e966aef0ffb49b2b1f57403d9a80, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 9162758079003802859, guid: 4364e966aef0ffb49b2b1f57403d9a80, type: 3}
       propertyPath: m_LocalPosition.y
@@ -1460,5 +1461,10 @@ PrefabInstance:
 --- !u!4 &3386515251286935251 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 4834132385881095923, guid: 030e2182bdf5fb4409d1956c5d8c2809, type: 3}
+  m_PrefabInstance: {fileID: 7919888251891087392}
+  m_PrefabAsset: {fileID: 0}
+--- !u!198 &7457054404186364600 stripped
+ParticleSystem:
+  m_CorrespondingSourceObject: {fileID: 762761040081167000, guid: 030e2182bdf5fb4409d1956c5d8c2809, type: 3}
   m_PrefabInstance: {fileID: 7919888251891087392}
   m_PrefabAsset: {fileID: 0}

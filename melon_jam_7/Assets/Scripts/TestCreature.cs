@@ -95,6 +95,7 @@ public class TestCreature : MonoBehaviour
             else
             {
                 Debug.LogError("Pathfinding failed on agent " + gameObject.name);
+                GameManager.instance.RemoveFromPursuingPlayer(this);
                 return;
             }
         }
@@ -175,6 +176,8 @@ public class TestCreature : MonoBehaviour
 
         pursuit_sfx.Play();
 
+        if(target.is_player) GameManager.instance.AddToPursuingPlayer(this);
+
         if(
             can_kill && 
             Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill &&
@@ -205,6 +208,8 @@ public class TestCreature : MonoBehaviour
         state = CreatureState.wander;
 
         pursuit_sfx.Stop();
+
+        GameManager.instance.RemoveFromPursuingPlayer(this);
 
         end_pursuit_callback.Invoke();
     }
@@ -273,6 +278,8 @@ public class TestCreature : MonoBehaviour
             else if(pursuing_audibly) current_audio_target = null;
 
             current_num_of_checks = 0;
+
+            GameManager.instance.RemoveFromPursuingPlayer(this);
         }
 
         pursuit_timer = time_btwn_target_checks;
