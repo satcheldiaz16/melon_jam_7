@@ -8,7 +8,7 @@ using Unity.VisualScripting;
 
 public enum CreatureState
 {
-    idle, wander, pursuit, stunned
+    idle, wander, pursuit, stunned, mother
 }
 public class TestCreature : MonoBehaviour
 {
@@ -17,6 +17,7 @@ public class TestCreature : MonoBehaviour
     [Header("Stunned")]
     [SerializeField] bool can_be_stunned = true;
     [SerializeField] float stunned_time = 5f;
+    [SerializeField] ParticleSystem stunned_effect;
     float stunned_timer = 0;
     [SerializeField] AudioSource stunned_sfx;
     List<Target> disinterested = new List<Target>();
@@ -43,7 +44,7 @@ public class TestCreature : MonoBehaviour
     [SerializeField] float wander_location_radius = 25f;
     [SerializeField] float min_idle_time = 1f;
     [SerializeField] float max_idle_time = 5f;
-    float wander_timer = 0;
+    float wander_timer = 1;
     bool pursuing_visually => current_visual_target != null;
     bool pursuing_audibly => current_audio_target != null && !pursuing_visually;
     [Header("Death")]
@@ -307,6 +308,8 @@ public class TestCreature : MonoBehaviour
         stunned_timer = stunned_time;
 
         stunned_sfx.Play();
+
+        stunned_effect?.Play();
     }
     void Update()
     {
@@ -315,6 +318,7 @@ public class TestCreature : MonoBehaviour
             case CreatureState.wander: UpdateWander(); break;
             case CreatureState.pursuit: UpdatePursuit(); break;
             case CreatureState.stunned: UpdateStunned(); break;
+            case CreatureState.mother: UpdateMother(); break;
         }
         HandleWalkSFX();
     }
@@ -327,6 +331,26 @@ public class TestCreature : MonoBehaviour
         }
 
         state = CreatureState.wander;
+        stunned_effect?.Stop();
+    }
+    void UpdateMother()
+    {
+        if(
+            can_kill && 
+            Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill
+        )
+        {
+            GrabPlayer();
+        }
+
+        if(wander_timer > 0)
+        {
+            wander_timer -= Time.deltaTime;
+            return;
+        }
+
+        wander_timer = .1f;
+        SetPathToPosition(PlayerController.instance.transform.position);
     }
     float walk_sfx_timer;
     [SerializeField] AudioSource walk_sfx;
