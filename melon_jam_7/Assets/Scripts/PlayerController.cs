@@ -1,5 +1,6 @@
 
 using System.Collections;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public enum PlayerMovementState
@@ -10,37 +11,49 @@ public enum PlayerMovementState
 }
 public class PlayerController : MonoBehaviour
 {
+    public PlayerInput input;
+    public static PlayerController instance;
+    [SerializeField] SphereCollider audio_target;
+    [SerializeField] Target target;
+    [Header("UI")]
     [SerializeField] Transform camera_pos;
-    [SerializeField] LayerMask ground_mask;
-    [SerializeField] float jump_slope_limit = 55f;
+    [SerializeField] GameObject pause_menu;
+    [SerializeField] Animator fader;
     [Header("Movement")]
     [SerializeField] CharacterController character_controller;
-    [SerializeField] AudioSource jump_sfx;
-    [SerializeField] AudioSource walk_sfx;
-    [SerializeField] GameObject pause_menu;
-    [SerializeField] DeathMenu death_menu;
-    [SerializeField] Animator fader;
-    public bool dead = false;
-    [SerializeField] AudioSource death_sfx;
-    float walk_sfx_timer;
     [SerializeField] float move_speed = 5f;
-    [SerializeField] float crouch_speed = 2f;
-    [SerializeField] float sprint_speed = 8f;
-    [SerializeField] float jump_height = 10f;
-    [SerializeField] float normal_height = .6f;
-    [SerializeField] float crouch_height = .3f;
-    [SerializeField] float gravity = -9.81f;
+    [SerializeField] float walk_sound_radius = 10;
     Vector2 input_movement;
     Vector3 move_dir;
     float vertical_vel;
     bool jump_input_pressed;
     bool sprint_input_pressed;
     bool crouch_input_pressed;
-    [Header("Audio Target Config")]
-    [SerializeField] SphereCollider audio_target;
-    [SerializeField] float walk_radius = 10;
-    [SerializeField] float crouch_radius = 2.5f;
-    [SerializeField] float sprint_radius = 25f;
+    float walk_sfx_timer;
+    [SerializeField] float normal_height = .6f;
+    [SerializeField] AudioSource walk_sfx;
+    [Header("Jump")]
+    [SerializeField] float jump_height = 10f;
+    [SerializeField] float gravity = -9.81f;
+    [SerializeField] float jump_slope_limit = 55f;
+    [SerializeField] LayerMask ground_mask;
+    [SerializeField] AudioSource jump_sfx;
+    [Header("Crouch")]
+    [SerializeField] float crouch_speed = 2f;
+    [SerializeField] float crouch_height = .3f;
+    [SerializeField] float crouch_sound_radius = 2.5f;
+    [Header("Sprint")]
+    [SerializeField] float sprint_speed = 8f;
+    [SerializeField] float sprint_sound_radius = 25f;
+    [Header("Death")]
+    [SerializeField] DeathMenu death_menu;
+    public bool grabbed = false;
+    public bool dead = false;
+    [SerializeField] AudioSource death_sfx;
+    void Awake()
+    {
+        instance = this;
+    }
     void Start()
     {
         character_controller = GetComponent<CharacterController>();
@@ -95,9 +108,9 @@ public class PlayerController : MonoBehaviour
     float GetAudioTargetRadius()
     {
         if(input_movement==Vector2.zero) return 0;
-        if(crouch_input_pressed) return crouch_radius;
-        else if (sprint_input_pressed) return sprint_radius;
-        else return walk_radius;
+        if(crouch_input_pressed) return crouch_sound_radius;
+        else if (sprint_input_pressed) return sprint_sound_radius;
+        else return walk_sound_radius;
     }
     void CalculateMovement()
     {
@@ -151,6 +164,12 @@ public class PlayerController : MonoBehaviour
             walk_sfx.Play();
             walk_sfx_timer = GetWalkSFXTime();
         }
+    }
+    public void EnterGrabbedState()
+    {
+        grabbed = true;
+        input.actions.FindActionMap("Player").Disable();
+        target.gameObject.SetActive(false);
     }
     public void Die(string cause = "You Died")
     {

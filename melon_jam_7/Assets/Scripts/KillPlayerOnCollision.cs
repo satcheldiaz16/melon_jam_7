@@ -7,7 +7,7 @@ public class KillPlayerOnCollision : MonoBehaviour
     {
         if(other.gameObject.TryGetComponent(out PlayerController player))
         {
-            if(!player.dead) player.Die(cause_of_death);
+            if(!player.dead && !player.grabbed) player.Die(cause_of_death);
         }
     }
 }
