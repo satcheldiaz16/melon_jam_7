@@ -1,23 +1,24 @@
 using UnityEngine;
 using System.Collections;
-using UnityEngine.Analytics;
-using UnityEditor.Experimental.GraphView;
 
 
 public class BabyManager : MonoBehaviour
 {
     #region Vars
-
     [Header("Fear")]
     public float fear = 0;
     public bool isAfraid = false;
     public float numToScare = 50;
-    [SerializeField] public float maxFear = 200f;
-    [SerializeField] public float fearLimit = 100f;
+    public float maxFear = 200f;
+    public float fearLimit = 100f;
     [SerializeField] float fearGain = 10f;
     [Header("UI")]
-    [SerializeField] private FearMeter fearMeter;
+    [SerializeField] FearMeter fearMeter;
+
+    [Header("Comfort")]
     public bool comfort;
+    private Coroutine comfortCoroutine = null;
+    [SerializeField] float relaxPoints = 10f;
 
     [Header("Timers")]
     [SerializeField] float actionTime = 5f;
@@ -32,23 +33,12 @@ public class BabyManager : MonoBehaviour
     [SerializeField] AudioClip[] chillLines;
     [SerializeField] AudioClip[] scaredLines;
     private bool crying = false;
-    
-    private Coroutine fearCoroutine;
-    private Coroutine calmCoroutine;
-    private Coroutine cryCoroutine;
-    private Coroutine comfortCoroutine;
-
+    private Coroutine fearCoroutine = null;
+    private Coroutine calmCoroutine = null;
+    private Coroutine cryCoroutine = null;
     #endregion
 
-    public void Start()
-    {
-        if (fearMeter == null) fearMeter = Object.FindFirstObjectByType<FearMeter>();
-        StartCoroutine(Action());
-    }
-
-
     #region ChooseActions
-
     public IEnumerator Action()
     {
         while (this.gameObject.activeSelf)
@@ -74,11 +64,9 @@ public class BabyManager : MonoBehaviour
             audioSource.Play();
         }
     }
-
     #endregion
 
-    #region fearControls
-
+    #region FearControls
     // Increase fear when scared
     public IEnumerator GetScared()
     {
@@ -110,11 +98,9 @@ public class BabyManager : MonoBehaviour
         }
         calmCoroutine = null;
     }
-
     #endregion
     
     #region Crying
-
     public IEnumerator CryEnum()
     {
         cryAudioSource.clip = (GetRandomLine(cryLines));
@@ -136,22 +122,37 @@ public class BabyManager : MonoBehaviour
             cryCoroutine = null;
         }
     }
-
     #endregion
 
     #region Comfort 
-
-    public void SetComfort (bool comfort)
+    public void SetComfort (bool isComforted)
     {
-        
+        if (isComforted) 
+        {
+            if (comfortCoroutine != null) return;
+            else comfortCoroutine = StartCoroutine(ComfortLoop());
+        }
+        else
+        {
+            if (comfortCoroutine == null) return;
+            else comfortCoroutine = null;
+        }
     }
 
     public IEnumerator ComfortLoop ()
     {
+        fear -= relaxPoints;
+        fear = Mathf.Clamp(fear, 0f, maxFear);
+        if (fearMeter != null) fearMeter.UpdateUI(fear);
         yield return new WaitForSeconds(comfortTimer);
     }
-
     #endregion
+    
+    public void Start()
+    {
+        if (fearMeter == null) fearMeter = Object.FindFirstObjectByType<FearMeter>();
+        StartCoroutine(Action());
+    }
 
     // Afraid setter called by FearCon 
     public void CheckFear(bool value)

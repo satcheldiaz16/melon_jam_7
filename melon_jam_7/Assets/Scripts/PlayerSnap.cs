@@ -21,7 +21,7 @@ public class PlayerSnap : MonoBehaviour
     [SerializeField] bool worn_out = false;
     float snap_recovery_timer;
     [SerializeField] bool infinite_snaps = false;
-    [SerializeField] BabyManager baby;
+    public BabyManager baby;
   
     void Update()
     {
