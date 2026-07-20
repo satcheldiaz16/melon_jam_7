@@ -1,3 +1,4 @@
+using System;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -20,6 +21,8 @@ public class PlayerSnap : MonoBehaviour
     [SerializeField] bool worn_out = false;
     float snap_recovery_timer;
     [SerializeField] bool infinite_snaps = false;
+    [SerializeField] BabyManager baby;
+  
     void Update()
     {
         hand_anim.SetBool("palming", palming);
@@ -73,6 +76,7 @@ public class PlayerSnap : MonoBehaviour
     public void OnAltAttack(InputValue value)
     {
         palming = value.isPressed;
+        baby.comfort = palming;
     }
     void PositionSnapIndicator()
     {

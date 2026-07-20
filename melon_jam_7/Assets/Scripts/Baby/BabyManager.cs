@@ -21,6 +21,7 @@ public class BabyManager : MonoBehaviour
     [SerializeField] float actionTime = 5f;
     [SerializeField] float fearGainInterval = 1f;
     [SerializeField] float cryInterval = 3f;
+    [SerializeField] float comfortTimer = 1f;
 
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
@@ -33,6 +34,7 @@ public class BabyManager : MonoBehaviour
     private Coroutine fearCoroutine;
     private Coroutine calmCoroutine;
     private Coroutine cryCoroutine;
+    private Coroutine comfortCoroutine;
 
 
     public void Start()
@@ -151,5 +153,22 @@ public class BabyManager : MonoBehaviour
         int index = Random.Range(0, getLine.Length);
         return getLine[index];
     }
-   
+
+    #region Comfort 
+    
+    #endregion
+
+    #region Comfort 
+
+    public void SetComfort (bool comfort)
+    {
+        
+    }
+
+    public IEnumerator ComfortLoop ()
+    {
+        yield return new WaitForSeconds(comfortTimer);
+    }
+
+    #endregion
 }
