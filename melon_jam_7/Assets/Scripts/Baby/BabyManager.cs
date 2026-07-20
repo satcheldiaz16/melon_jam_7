@@ -1,5 +1,7 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.Analytics;
+using UnityEditor.Experimental.GraphView;
 
 
 public class BabyManager : MonoBehaviour
@@ -10,22 +12,27 @@ public class BabyManager : MonoBehaviour
     public float numToScare = 50;
     [SerializeField] public float maxFear = 200f;
     [SerializeField] public float fearLimit = 100f;
-    [SerializeField] float fearGain = 5f;
+    [SerializeField] float fearGain = 10f;
     [Header("UI")]
     [SerializeField] private FearMeter fearMeter;
+    public bool comfort;
 
     [Header("Timers")]
     [SerializeField] float actionTime = 5f;
     [SerializeField] float fearGainInterval = 1f;
+    [SerializeField] float cryInterval = 3f;
 
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
+    [SerializeField] AudioSource cryAudioSource;
     [SerializeField] AudioClip[] cryLines;
     [SerializeField] AudioClip[] chillLines;
     [SerializeField] AudioClip[] scaredLines;
+    private bool crying = false;
     
     private Coroutine fearCoroutine;
     private Coroutine calmCoroutine;
+    private Coroutine cryCoroutine;
 
 
     public void Start()
@@ -38,36 +45,23 @@ public class BabyManager : MonoBehaviour
     {
         while (this.gameObject.activeSelf)
         {
-            //Debug.Log("Deciding Action");
-            DecideAction();
             yield return new WaitForSeconds(actionTime);
+            if (crying) continue;
+            DecideAction();
         }
     }
 
     public void DecideAction()
     {
-        Debug.Log("Action Called, Afraid status is " + isAfraid);
-        if (isAfraid)
-        {
-            if (fear >= fearLimit)
-            {
-                // baby is scared and crying
-                Debug.Log("Deciding Afraid + crying");
-                audioSource.clip = (GetRandomLine(cryLines));
-                audioSource.Play();
-            }
-            else if (fear >= numToScare)
-            {
-                // baby is afraid but not crying
-                Debug.Log("Deciding Afraid but not crying");
-                audioSource.clip = (GetRandomLine(scaredLines));
-                audioSource.Play();
-            }
+        if (isAfraid && fear > numToScare)
+        { 
+            // baby is afraid but not crying
+            audioSource.clip = (GetRandomLine(scaredLines));
+            audioSource.Play();  
         }
         else
         {
             // chill
-            Debug.Log("Deciding chilling");
             audioSource.clip = (GetRandomLine(chillLines));
             audioSource.Play();
         }
@@ -78,16 +72,15 @@ public class BabyManager : MonoBehaviour
     {
         while (isAfraid)
         {
-            if (fear < maxFear)
-            {
-                fear += fearGain;
-                fear = Mathf.Clamp(fear, 0f, maxFear);
-                if (fearMeter != null) fearMeter.UpdateUI(fear);
-            }
+            bool checkCry = fear > fearLimit;
+            CallCry(checkCry);
+
+            fear += fearGain;
+            fear = Mathf.Clamp(fear, 0f, maxFear);
+            if (fearMeter != null) fearMeter.UpdateUI(fear);
             yield return new WaitForSeconds(fearGainInterval);
         }
         fearCoroutine = null;
-
     }
 
     // Decrease fear when calm
@@ -95,12 +88,38 @@ public class BabyManager : MonoBehaviour
     {
         while (!isAfraid)
         {
+            bool checkCry = fear > fearLimit;
+            CallCry(checkCry);
+
             fear -= fearGain;
             fear = Mathf.Clamp(fear, 0f, maxFear);
             if (fearMeter != null) fearMeter.UpdateUI(fear);
             yield return new WaitForSeconds(fearGainInterval);
         }
         calmCoroutine = null;
+    }
+
+    public void CallCry(bool isCrying)
+    {
+        crying = isCrying;
+        if (isCrying && cryCoroutine != null) return;
+
+        if (isCrying && cryCoroutine == null)
+        {
+            cryCoroutine = StartCoroutine(CryEnum());
+        }
+        else 
+        {
+            if (cryCoroutine != null) StopCoroutine(CryEnum());
+            cryCoroutine = null;
+        }
+    }
+
+    public IEnumerator CryEnum()
+    {
+        cryAudioSource.clip = (GetRandomLine(cryLines));
+        cryAudioSource.Play();
+        yield return new WaitForSeconds(cryInterval);
     }
 
     // Afraid setter called by FearCon 

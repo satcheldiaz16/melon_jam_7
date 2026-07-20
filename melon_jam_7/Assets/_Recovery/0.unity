@@ -410,9 +410,9 @@ MonoBehaviour:
   numToScare: 50
   maxFear: 200
   fearLimit: 100
-  fearGain: 1
+  fearGain: 20
   fearMeter: {fileID: 1958547720}
-  actionTime: 10
+  actionTime: 15
   fearGainInterval: 1
   cryInterval: 3
   audioSource: {fileID: 271917842}
@@ -4711,8 +4711,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -220.45752, y: 492.9008}
-  m_SizeDelta: {x: 108.7302, y: 251.8324}
+  m_AnchoredPosition: {x: -219.57892, y: 496.16776}
+  m_SizeDelta: {x: 63.8786, y: 244.5635}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1958547720
 MonoBehaviour:
@@ -4732,8 +4732,8 @@ MonoBehaviour:
   Ribs: {fileID: 1924490600}
   endSkeletonColor: {r: 0.24705882, g: 0.16862746, b: 0.16862746, a: 0}
   text: {fileID: 1095006374}
-  FlashInterval: 0.3
-  FlashColor: {r: 0.5471698, g: 0, b: 0, a: 1}
+  FlashInterval: 0.1
+  FlashColor: {r: 0.3962264, g: 0, b: 0, a: 1}
   StartingColor: {r: 1, g: 1, b: 1, a: 1}
 --- !u!114 &1958547721
 MonoBehaviour:
@@ -4748,18 +4748,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0.6392157, g: 0, b: 0, a: 0.7372549}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 47285a0e0835b85439db40e28ac03e7b, type: 3}
-  m_Type: 3
+  m_Sprite: {fileID: 0}
+  m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
-  m_FillMethod: 1
+  m_FillMethod: 4
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0

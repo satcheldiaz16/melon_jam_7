@@ -16,6 +16,9 @@ public class FearMeter : MonoBehaviour
 
     [Header("Text Settings")]
     [SerializeField] TextMeshProUGUI text;
+    [SerializeField] float fillSmoothSpeed = 3f;
+    private float targetFill = 0f;
+    private float displayedFill = 0f;
     [SerializeField] float FlashInterval = .3f;
     [SerializeField] Color FlashColor = Color.red;
     [SerializeField] Color StartingColor = Color.white;
@@ -23,12 +26,25 @@ public class FearMeter : MonoBehaviour
     private bool isFlashing = false;
     
 
+    public void Update()
+    {
+        if (Mathf.Abs(displayedFill - targetFill) < 0.001f)
+        {
+            displayedFill = targetFill;
+        }
+        else
+        {
+            displayedFill = Mathf.Lerp(displayedFill, targetFill, Time.deltaTime * fillSmoothSpeed);
+        }
+        FearBar.fillAmount = displayedFill;
+    }
+
 
     public void UpdateUI(float fear)
     {
         float currentFear = baby.fear;
         float fill = currentFear / baby.maxFear;
-        FearBar.fillAmount = fill;
+        targetFill = fill;
         if (baby.fear >= baby.fearLimit) SetFlashingState(true);
         else SetFlashingState(false);
         UpdateSkeleton(fill);
@@ -36,8 +52,10 @@ public class FearMeter : MonoBehaviour
 
     public void UpdateSkeleton(float percent)
     {
-        HeadSpine.color = Color.Lerp(StartingColor, endSkeletonColor, percent);
-        Ribs.color = Color.Lerp(StartingColor, endSkeletonColor, percent);
+         Color lerped = Color.Lerp(StartingColor, endSkeletonColor, percent);
+        lerped.a = 1f; 
+        HeadSpine.color = lerped;
+        Ribs.color = lerped;
     }
 
     private void Awake()
@@ -52,7 +70,11 @@ public class FearMeter : MonoBehaviour
         if (shouldFlash == isFlashing) return;
         isFlashing = shouldFlash;
 
-        if (isFlashing) flashCoroutine = StartCoroutine(FlashRoutine());
+        if (isFlashing) 
+        {
+            flashCoroutine = StartCoroutine(FlashRoutine());
+            text.color = FlashColor;
+        }
         else
         {
             if (flashCoroutine != null) StopCoroutine(flashCoroutine);
