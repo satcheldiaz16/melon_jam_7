@@ -11,13 +11,17 @@ public class FearMeter : MonoBehaviour
     [Header("UI Reference")]
     [SerializeField] Image FearBar;
     [SerializeField] Image BackgroundBar;
-    [SerializeField] Image HeadSpine;
-    [SerializeField] Image Ribs;
+    [SerializeField] RectTransform FearBarRect;
+    [SerializeField] RectTransform BackgroundBarRect;
+    [SerializeField] Image[] skeletonParts;
     [SerializeField] Color endSkeletonColor;
+    [SerializeField] Sprite startSkeleton;
+    [SerializeField] Sprite endSkeleton;
+    [SerializeField] Image skeleton;
 
     [Header("Text Settings")]
     [SerializeField] TextMeshProUGUI text;
-    [SerializeField] float fillSmoothSpeed = 3f;
+    [SerializeField] float fillMoveSpeed = .05f;
     private float targetFill = 0f;
     private float displayedFill = 0f;
     [SerializeField] float FlashInterval = .3f;
@@ -27,24 +31,31 @@ public class FearMeter : MonoBehaviour
     private bool isFlashing = false;
     
 
+
+
     public void Update()
     {
-        if (Mathf.Abs(displayedFill - targetFill) < 0.001f)
-        {
-            displayedFill = targetFill;
-        }
-        else
-        {
-            displayedFill = Mathf.Lerp(displayedFill, targetFill, Time.deltaTime * fillSmoothSpeed);
-        }
+        displayedFill = Mathf.MoveTowards(displayedFill, targetFill, fillMoveSpeed * Time.deltaTime);
         FearBar.fillAmount = displayedFill;
-        BackgroundBar.fillAmount = displayedFill;
-    }
 
+        float filledPixels = displayedFill * FearBarRect.rect.height;
+        float backgroundFraction = filledPixels / BackgroundBarRect.rect.height;
+        BackgroundBar.fillAmount = Mathf.Clamp01(backgroundFraction);
+    }
 
     public void UpdateUI(float fear)
     {
         float currentFear = baby.fear;
+        if (currentFear >= baby.fearLimit)
+        {
+            skeleton.sprite = endSkeleton;
+            BackgroundBar.color = new Color(BackgroundBar.color.r, BackgroundBar.color.g, BackgroundBar.color.b, 0f);
+        }
+        else
+        {
+            skeleton.sprite = startSkeleton;
+            BackgroundBar.color = new Color(BackgroundBar.color.r, BackgroundBar.color.g, BackgroundBar.color.b, 1f);
+        }
         float fill = currentFear / baby.maxFear;
         targetFill = fill;
         if (baby.fear >= baby.fearLimit) SetFlashingState(true);
@@ -56,15 +67,20 @@ public class FearMeter : MonoBehaviour
     {
          Color lerped = Color.Lerp(StartingColor, endSkeletonColor, percent);
         lerped.a = 1f; 
-        HeadSpine.color = lerped;
-        Ribs.color = lerped;
+        foreach (Image img in skeletonParts)
+        {
+            img.color = lerped;
+        }
     }
 
     private void Awake()
     {
+        fillMoveSpeed = (baby.fearGain / baby.maxFear) / baby.fearGainInterval;
         text.color = StartingColor;
-        HeadSpine.color = StartingColor;
-        Ribs.color = StartingColor;
+        foreach (Image img in skeletonParts)
+        {
+            img.color = StartingColor;
+        }
     }
 
     public void SetFlashingState(bool shouldFlash)

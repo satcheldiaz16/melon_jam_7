@@ -11,7 +11,7 @@ public class BabyManager : MonoBehaviour
     public float numToScare = 50;
     public float maxFear = 200f;
     public float fearLimit = 100f;
-    [SerializeField] float fearGain = 10f;
+    public float fearGain = 10f;
     [Header("UI")]
     [SerializeField] FearMeter fearMeter;
 
@@ -22,7 +22,7 @@ public class BabyManager : MonoBehaviour
 
     [Header("Timers")]
     [SerializeField] float actionTime = 5f;
-    [SerializeField] float fearGainInterval = 1f;
+    public float fearGainInterval = 1f;
     [SerializeField] float cryInterval = 3f;
     [SerializeField] float comfortTimer = 1f;
 
@@ -104,22 +104,24 @@ public class BabyManager : MonoBehaviour
     public IEnumerator CryEnum()
     {
         cryAudioSource.clip = (GetRandomLine(cryLines));
+        audioSource.loop = true;
         cryAudioSource.Play();
         yield return new WaitForSeconds(cryInterval);
     }
     public void CallCry(bool isCrying)
     {
         crying = isCrying;
-        if (isCrying && cryCoroutine != null) return;
-
-        if (isCrying && cryCoroutine == null)
-        {
-            cryCoroutine = StartCoroutine(CryEnum());
-        }
-        else 
+        if (!isCrying)
         {
             if (cryCoroutine != null) StopCoroutine(CryEnum());
+            audioSource.loop = false;
             cryCoroutine = null;
+        }
+
+        if (isCrying && cryCoroutine != null) return;
+        else 
+        {
+            cryCoroutine = StartCoroutine(CryEnum());
         }
     }
     #endregion
