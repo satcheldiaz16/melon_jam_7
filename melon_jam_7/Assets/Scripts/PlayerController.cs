@@ -11,6 +11,13 @@ public enum PlayerMovementState
 }
 public class PlayerController : MonoBehaviour
 {
+    [Header("Noise")]
+    public NoiseController noiseController; 
+    public float jumpVol = .5f;
+    public float runVol = .7f;
+    public float walkVol = .3f;
+    public float crouchVol = .1f;
+
     public PlayerInput input;
     public static PlayerController instance;
     [SerializeField] SphereCollider audio_target;
@@ -74,14 +81,17 @@ public class PlayerController : MonoBehaviour
     }
     public void OnJump(InputValue value)
     {
+        noiseController.TriggerImpulseNoise(jumpVol);
         jump_input_pressed = value.isPressed;
     }
     public void OnSprint(InputValue value)
     {
+        noiseController.TriggerImpulseNoise(runVol);
         sprint_input_pressed = value.isPressed;
     }
     public void OnCrouch(InputValue value)
     {
+        noiseController.TriggerImpulseNoise(crouchVol);
         crouch_input_pressed = value.isPressed;
     }
     public void OnMenu(InputValue value)

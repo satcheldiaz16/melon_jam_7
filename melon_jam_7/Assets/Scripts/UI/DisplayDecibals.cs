@@ -1,21 +1,21 @@
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class DisplayDecibals : MonoBehaviour
 {
-    private Text text;
-    private float decibal;
     [SerializeField] NoiseController noiseController;
+    private TextMeshProUGUI text;
 
     private void Awake()
     {
-        text = GetComponentInParent<Text>();
+        text = GetComponentInParent<TextMeshProUGUI>();
     }
 
     public void Update()
     {
-        decibal = noiseController.playerNoise;
-        text.text = decibal.ToString();
+        float displayDb = Mathf.Lerp(30f, 120f, noiseController.playerNoise);
+        text.text = $"{Mathf.RoundToInt(displayDb)} dB";
     }
 }
