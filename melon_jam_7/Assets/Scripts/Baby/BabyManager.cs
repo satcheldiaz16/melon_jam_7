@@ -29,9 +29,14 @@ public class BabyManager : MonoBehaviour
     [Header("Audio")]
     [SerializeField] AudioSource audioSource;
     [SerializeField] AudioSource cryAudioSource;
+    [SerializeField] float pitchVarLow = .9f;
+    [SerializeField] float pitchVarHigh = 1.1f;
+    [SerializeField] float volumeVarLow = .85f;
+    [SerializeField] float volumeVarHigh = 1f;
     [SerializeField] AudioClip[] cryLines;
     [SerializeField] AudioClip[] chillLines;
     [SerializeField] AudioClip[] scaredLines;
+    
     private bool crying = false;
     private Coroutine fearCoroutine = null;
     private Coroutine calmCoroutine = null;
@@ -101,27 +106,35 @@ public class BabyManager : MonoBehaviour
     #endregion
     
     #region Crying
-    public IEnumerator CryEnum()
+    public IEnumerator CryEnum(AudioClip nextClip)
     {
-        cryAudioSource.clip = (GetRandomLine(cryLines));
-        audioSource.loop = true;
-        cryAudioSource.Play();
-        yield return new WaitForSeconds(cryInterval);
+        while(crying)
+        {
+            cryAudioSource.pitch = (Random.Range(pitchVarLow, pitchVarHigh));
+            cryAudioSource.volume = (Random.Range(volumeVarLow, volumeVarHigh));
+            cryAudioSource.Play();
+            float waitTime = Mathf.Max(0.1f, nextClip.length - 0.05f);
+            yield return new WaitForSeconds(cryInterval);  
+        }
     }
     public void CallCry(bool isCrying)
     {
+        if (crying == isCrying) return;
         crying = isCrying;
+
         if (!isCrying)
         {
-            if (cryCoroutine != null) StopCoroutine(CryEnum());
-            audioSource.loop = false;
-            cryCoroutine = null;
+            if (cryCoroutine != null)
+            {
+                StopCoroutine(CryEnum(null));
+                cryCoroutine = null;
+            }
+            cryAudioSource.Stop();
         }
-
-        if (isCrying && cryCoroutine != null) return;
         else 
         {
-            cryCoroutine = StartCoroutine(CryEnum());
+            cryAudioSource.clip = GetRandomLine(cryLines);
+            cryCoroutine = StartCoroutine(CryEnum(cryAudioSource.clip));
         }
     }
     #endregion
