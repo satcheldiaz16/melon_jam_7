@@ -10,6 +10,7 @@ public class FearMeter : MonoBehaviour
 
     [Header("UI Reference")]
     [SerializeField] Image FearBar;
+    [SerializeField] Image BackgroundBar;
     [SerializeField] Image HeadSpine;
     [SerializeField] Image Ribs;
     [SerializeField] Color endSkeletonColor;
@@ -37,6 +38,7 @@ public class FearMeter : MonoBehaviour
             displayedFill = Mathf.Lerp(displayedFill, targetFill, Time.deltaTime * fillSmoothSpeed);
         }
         FearBar.fillAmount = displayedFill;
+        BackgroundBar.fillAmount = displayedFill;
     }
 
 
