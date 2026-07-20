@@ -76,7 +76,7 @@ public class PlayerSnap : MonoBehaviour
     public void OnAltAttack(InputValue value)
     {
         palming = value.isPressed;
-        baby.comfort = palming;
+        baby.SetComfort(palming);
     }
     void PositionSnapIndicator()
     {
