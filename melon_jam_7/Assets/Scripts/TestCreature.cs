@@ -144,7 +144,14 @@ public class TestCreature : MonoBehaviour
 
         targets_currently_heard = targets;
 
-        if(targets.Count < 1 || pursuing_visually || pursuing_audibly) return;
+        if(targets.Count < 1 || pursuing_visually) return;
+
+        if (targets[0].is_player && (!pursuing_audibly || !current_audio_target.is_player))
+        {
+            current_audio_target = targets[0];
+            BeginPursuit(targets[0]);
+            return;
+        }
 
         foreach(Target target in targets)
         {
@@ -167,40 +174,27 @@ public class TestCreature : MonoBehaviour
 
         pursuit_sfx.Play();
 
+        if(
+            can_kill && 
+            Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill &&
+            target.is_player
+        )
+        {
+            GrabPlayer();
+        }
+
         begin_pursuit_callback.Invoke();
     }
     void EndPursuit()
     {
-        bool pursuing_player = false;
-
         if (pursuing_visually)
         {
             AddToDisinterests(current_visual_target);
-            pursuing_player = current_visual_target.is_player;
         } 
         else if (pursuing_audibly)
         {
             AddToDisinterests(current_audio_target);
-            pursuing_player = current_audio_target.is_player;
         } 
-
-        if (can_kill && pursuing_player)
-        {
-            if (pursuing_visually && vision.CanSee(current_visual_target.transform))
-            {
-                if(Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill)
-                {
-                    GrabPlayer();
-                }
-            }
-            else if (pursuing_audibly && targets_currently_heard.Contains(current_audio_target))
-            {
-                if(Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill)
-                {
-                    GrabPlayer();
-                }
-            }
-        }
 
         pursuit_timer = time_btwn_target_checks;
 
@@ -238,6 +232,15 @@ public class TestCreature : MonoBehaviour
             {
                 SetPathToPosition(current_visual_target.transform.position);
                 current_num_of_checks = 0;
+
+                if(
+                    can_kill && 
+                    Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill &&
+                    current_visual_target.is_player
+                )
+                {
+                    GrabPlayer();
+                }
             }
         }
         else if (pursuing_audibly)
@@ -251,6 +254,15 @@ public class TestCreature : MonoBehaviour
             {
                 SetPathToPosition(current_audio_target.transform.position);
                 current_num_of_checks = 0;
+            }
+
+            if(
+                can_kill && 
+                Vector3.Distance(PlayerController.instance.transform.position, transform.position) < dist_to_kill &&
+                current_audio_target.is_player
+            )
+            {
+                GrabPlayer();
             }
         }
 
@@ -318,10 +330,12 @@ public class TestCreature : MonoBehaviour
     }
     float walk_sfx_timer;
     [SerializeField] AudioSource walk_sfx;
+    [SerializeField] float pursuit_sfx_time = .5f;
+    [SerializeField] float wander_sfx_time = 1f;
     float GetWalkSFXTime()
     {
-        if(state == CreatureState.pursuit) return .5f;
-        else return 1f;
+        if(state == CreatureState.pursuit) return pursuit_sfx_time;
+        else return wander_sfx_time;
     }
     void HandleWalkSFX()
     {

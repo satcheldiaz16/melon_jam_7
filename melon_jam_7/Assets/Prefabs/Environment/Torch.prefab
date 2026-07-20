@@ -5266,6 +5266,7 @@ GameObject:
   - component: {fileID: 6573333751048458698}
   - component: {fileID: 7590709030342827074}
   - component: {fileID: 4622279586794201348}
+  - component: {fileID: 25175449090970429}
   m_Layer: 0
   m_Name: Point Light
   m_TagString: Untagged
@@ -5382,6 +5383,19 @@ MonoBehaviour:
   m_ShadowLayerMask: 1
   m_RenderingLayers: 1
   m_ShadowRenderingLayers: 1
+--- !u!114 &25175449090970429
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8427665714583510978}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4edd1b74cc598a346987a0fe9678b4ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::LightSource
+  lightComp: {fileID: 0}
 --- !u!1001 &146196536343164407
 PrefabInstance:
   m_ObjectHideFlags: 0

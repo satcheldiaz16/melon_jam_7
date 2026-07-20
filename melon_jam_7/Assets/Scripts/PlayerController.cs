@@ -66,7 +66,7 @@ public class PlayerController : MonoBehaviour
 
         CalculateMovement();
         HandleWalkSFX();
-        audio_target.radius = GetAudioTargetRadius();
+        SetAudioTarget();
     }
     public void OnMove(InputValue value)
     {
@@ -107,10 +107,15 @@ public class PlayerController : MonoBehaviour
     }
     float GetAudioTargetRadius()
     {
-        if(input_movement==Vector2.zero) return 0;
+        if(input_movement==Vector2.zero){ return .01f;}
         if(crouch_input_pressed) return crouch_sound_radius;
         else if (sprint_input_pressed) return sprint_sound_radius;
         else return walk_sound_radius;
+    }
+    void SetAudioTarget()
+    {
+        audio_target.radius = GetAudioTargetRadius();
+        audio_target.enabled = audio_target.radius >= .02f;
     }
     void CalculateMovement()
     {
@@ -170,6 +175,8 @@ public class PlayerController : MonoBehaviour
         grabbed = true;
         input.actions.FindActionMap("Player").Disable();
         target.gameObject.SetActive(false);
+        death_sfx.Play();
+        GetComponent<PlayerSnap>().snap_acquired = false;
     }
     public void Die(string cause = "You Died")
     {
@@ -178,6 +185,6 @@ public class PlayerController : MonoBehaviour
         death_menu.gameObject.SetActive(true);
         death_menu.SetCauseText(cause);
         GetComponent<PlayerInput>().enabled = false;
-        death_sfx.Play();
+        if(!grabbed) death_sfx.Play();
     }
 }

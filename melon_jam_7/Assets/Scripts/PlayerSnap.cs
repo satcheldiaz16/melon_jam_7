@@ -22,6 +22,7 @@ public class PlayerSnap : MonoBehaviour
     float snap_recovery_timer;
     [SerializeField] bool infinite_snaps = false;
     public BabyManager baby;
+    public bool snap_acquired = true;
   
     void Update()
     {
@@ -46,7 +47,7 @@ public class PlayerSnap : MonoBehaviour
     }
     public void OnAttack(InputValue value)
     {
-        if(worn_out) return;
+        if(worn_out || !snap_acquired) return;
 
         hand_anim.SetTrigger("snap");
 
@@ -80,7 +81,7 @@ public class PlayerSnap : MonoBehaviour
     }
     void PositionSnapIndicator()
     {
-        if (worn_out)
+        if (worn_out || !snap_acquired)
         {
             snap_indicator.gameObject.SetActive(false);
             return;

@@ -648,7 +648,7 @@ MonoBehaviour:
   stunned_sfx: {fileID: 6154041957574712088}
   time_to_remain_disinterested: 30
   pursuit_speed: 6
-  time_btwn_target_checks: 0.5
+  time_btwn_target_checks: 0.1
   checks_before_target_loss: 5
   target_cue: {fileID: 8169002800486828845}
   pursuit_sfx: {fileID: 5076155281673401527}
@@ -683,11 +683,17 @@ MonoBehaviour:
           m_BoolArgument: 0
         m_CallState: 2
   vision: {fileID: 1524259657764425280}
-  hearing: {fileID: 4591996308970732418}
+  hearing: {fileID: 0}
   wander_speed: 3.5
   wander_location_radius: 25
   min_idle_time: 1
   max_idle_time: 5
+  can_kill: 0
+  death_msg: Consumed
+  dist_to_kill: 2
+  kill_sfx: {fileID: 0}
+  kc_point: {fileID: 0}
+  kc_anim: {fileID: 0}
   walk_sfx: {fileID: 7205570960785500242}
 --- !u!195 &3447964073983034534
 NavMeshAgent:
@@ -1309,7 +1315,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8468693560691253526, guid: 4364e966aef0ffb49b2b1f57403d9a80, type: 3}
       propertyPath: view_radius
-      value: 45
+      value: 60
       objectReference: {fileID: 0}
     - target: {fileID: 8468693560691253526, guid: 4364e966aef0ffb49b2b1f57403d9a80, type: 3}
       propertyPath: target_mask.m_Bits
