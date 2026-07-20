@@ -18,6 +18,10 @@ public class PlayerController : MonoBehaviour
     [SerializeField] AudioSource jump_sfx;
     [SerializeField] AudioSource walk_sfx;
     [SerializeField] GameObject pause_menu;
+    [SerializeField] DeathMenu death_menu;
+    [SerializeField] Animator fader;
+    public bool dead = false;
+    [SerializeField] AudioSource death_sfx;
     float walk_sfx_timer;
     [SerializeField] float move_speed = 5f;
     [SerializeField] float crouch_speed = 2f;
@@ -45,6 +49,8 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
+        if(dead) return;
+
         CalculateMovement();
         HandleWalkSFX();
         audio_target.radius = GetAudioTargetRadius();
@@ -145,5 +151,14 @@ public class PlayerController : MonoBehaviour
             walk_sfx.Play();
             walk_sfx_timer = GetWalkSFXTime();
         }
+    }
+    public void Die(string cause = "You Died")
+    {
+        dead = true;
+        fader.SetTrigger("die");
+        death_menu.gameObject.SetActive(true);
+        death_menu.SetCauseText(cause);
+        GetComponent<PlayerInput>().enabled = false;
+        death_sfx.Play();
     }
 }

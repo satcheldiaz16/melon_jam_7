@@ -127,12 +127,10 @@ public class BabyManager : MonoBehaviour
             calmCoroutine = StartCoroutine(GetCalm());
         }
     }
-
     public static AudioClip GetRandomLine(AudioClip[] getLine)
     {
-        int index = Random.Range(0, randomLines.Length);
+        int index = Random.Range(0, getLine.Length);
         return getLine[index];
     }
-
    
 }
