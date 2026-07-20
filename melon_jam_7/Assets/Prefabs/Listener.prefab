@@ -165,7 +165,7 @@ MonoBehaviour:
   min_idle_time: 1
   max_idle_time: 5
   can_kill: 1
-  death_msg: Consumed
+  death_msg: Devoured Whole
   dist_to_kill: 5
   kill_sfx: {fileID: 6794125490295921062}
   kc_point: {fileID: 4142231366484771716}

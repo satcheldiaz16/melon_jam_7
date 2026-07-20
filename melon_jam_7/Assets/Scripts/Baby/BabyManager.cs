@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections;
-
+using UnityEngine.EventSystems;
+using UnityEngine.Events;
 
 public class BabyManager : MonoBehaviour
 {
@@ -12,6 +13,7 @@ public class BabyManager : MonoBehaviour
     public float maxFear = 200f;
     public float fearLimit = 100f;
     public float fearGain = 10f;
+    public UnityEvent fear_maxed_callback;
     [Header("UI")]
     [SerializeField] FearMeter fearMeter;
 
@@ -81,6 +83,10 @@ public class BabyManager : MonoBehaviour
             CallCry(checkCry);
 
             fear += fearGain;
+            if(fear >= maxFear)
+            {
+                fear_maxed_callback.Invoke();
+            }
             fear = Mathf.Clamp(fear, 0f, maxFear);
             if (fearMeter != null) fearMeter.UpdateUI(fear);
             yield return new WaitForSeconds(fearGainInterval);

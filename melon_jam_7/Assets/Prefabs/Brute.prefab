@@ -532,7 +532,7 @@ MonoBehaviour:
   min_idle_time: 1
   max_idle_time: 5
   can_kill: 1
-  death_msg: Skewered
+  death_msg: Torn to Shreds
   dist_to_kill: 5
   kill_sfx: {fileID: 1573789912338258352}
   kc_point: {fileID: 8959584067117155806}
