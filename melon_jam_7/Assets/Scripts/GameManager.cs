@@ -5,7 +5,7 @@ public class GameManager : MonoBehaviour
 {
     public static GameManager instance;
     [SerializeField] AudioSource pursuit_sfx;
-    [SerializeField] List<TestCreature> creatures_pursuing_player = new();
+    public List<TestCreature> creatures_pursuing_player = new();
     void Awake()
     {
         instance = this;
