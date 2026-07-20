@@ -21,6 +21,9 @@ public class FearMeter : MonoBehaviour
 
     [Header("Text Settings")]
     [SerializeField] TextMeshProUGUI text;
+    [SerializeField] TMP_Text tmp;
+    [SerializeField] float lineSpacing = 350f;
+    [SerializeField] float startSpacing = 35f;
     [SerializeField] float fillMoveSpeed = .05f;
     private float targetFill = 0f;
     private float displayedFill = 0f;
@@ -50,11 +53,13 @@ public class FearMeter : MonoBehaviour
         {
             skeleton.sprite = endSkeleton;
             BackgroundBar.color = new Color(BackgroundBar.color.r, BackgroundBar.color.g, BackgroundBar.color.b, 0f);
+            tmp.lineSpacing = lineSpacing;
         }
         else
         {
             skeleton.sprite = startSkeleton;
             BackgroundBar.color = new Color(BackgroundBar.color.r, BackgroundBar.color.g, BackgroundBar.color.b, 1f);
+            tmp.lineSpacing = startSpacing;
         }
         float fill = currentFear / baby.maxFear;
         targetFill = fill;

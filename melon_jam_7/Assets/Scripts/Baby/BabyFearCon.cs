@@ -32,6 +32,7 @@ public class BabyFearCon : MonoBehaviour
       bool IsLit()
     {
         float illumination = 0f;
+        Vector3 targetPos = PlayerTransform.position;
 
         foreach (var source in LightSource.Active)
         {
@@ -39,7 +40,7 @@ public class BabyFearCon : MonoBehaviour
             Light light = source.lightComp;
             if (!light.enabled || light.intensity <= 0f) continue;
 
-            Vector3 toPlayer = PlayerTransform.position - light.transform.position;
+            Vector3 toPlayer = targetPos - light.transform.position;
             float dist = toPlayer.magnitude;
             if (dist > light.range) continue;
             if (light.type == LightType.Spot)
@@ -48,19 +49,23 @@ public class BabyFearCon : MonoBehaviour
                 if (angle > light.spotAngle * 0.5f) continue;
             }
 
-            Vector3 dir = toPlayer.normalized;
-            float skin = 0.1f;
-            if (light.TryGetComponent<Collider>(out var col))
-                skin = col.bounds.extents.magnitude + 0.05f;
+            if (dist > 0.2f)
+            {
+                Vector3 dir = toPlayer.normalized;
+                float skin = 0.1f;
+                if (light.TryGetComponent<Collider>(out var col))
+                    skin = col.bounds.extents.magnitude + 0.05f;
 
-            Vector3 castOrigin = light.transform.position + dir * skin;
-
-            if (Physics.Linecast(light.transform.position, transform.position, ObstacleMask))
-                continue;
+                Vector3 castOrigin = light.transform.position + dir * skin;
+                if (Physics.Linecast(castOrigin, targetPos, ObstacleMask)) continue;
+            }
 
             // calculate total light on baby based on distance and intensity #splish
-            float atten = 1f - Mathf.Clamp01(dist / light.range);
+            float atten = 1f - Mathf.Clamp01(dist/light.range);
             illumination += light.intensity * atten;
+            //Debug.Log("illumination is " + illumination);
+
+            if (illumination >= litThreshold) return true;
         }
 
         return illumination >= litThreshold;
