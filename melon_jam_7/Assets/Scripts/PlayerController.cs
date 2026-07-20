@@ -194,7 +194,7 @@ public class PlayerController : MonoBehaviour
         fader.SetTrigger("die");
         death_menu.gameObject.SetActive(true);
         death_menu.SetCauseText(cause);
-        GetComponent<PlayerInput>().enabled = false;
+        GetComponent<PlayerInput>().actions.FindActionMap("Player").Disable();
         if(!grabbed) death_sfx.Play();
     }
 }
