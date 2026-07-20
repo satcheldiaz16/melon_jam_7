@@ -9,7 +9,6 @@ public class NoiseController : MonoBehaviour
     [Header("Audio tracking")]
     public float playerNoise = 0f;
     
-    [Tooltip("Tags of objects whose audio should be tracked (e.g. NoiseSource, Player, Baby)")]
     [SerializeField] string[] trackedTags = new string[] { "NoiseSource", "Player", "Baby"};
     
     [SerializeField] AudioSource[] audioSources = new AudioSource[0];

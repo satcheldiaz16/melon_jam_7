@@ -4,6 +4,10 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerSnap : MonoBehaviour
 {
+    [Header("Noise")]
+    public NoiseController noiseController; 
+    public float shootVol = .9f;
+
     [Header("Snapping")]
     [SerializeField] Animator hand_anim;
     [SerializeField] FingerPain ui;
@@ -47,6 +51,7 @@ public class PlayerSnap : MonoBehaviour
     }
     public void OnAttack(InputValue value)
     {
+        
         if(worn_out || !snap_acquired) return;
 
         hand_anim.SetTrigger("snap");
@@ -59,8 +64,7 @@ public class PlayerSnap : MonoBehaviour
         spark.GetComponent<Spark>().Ignite();
         
         spark_sfx.Play();
-
-        if(infinite_snaps) return;
+        noiseController.TriggerImpulseNoise(shootVol);        if(infinite_snaps) return;
 
         snaps_accumulated++;
         ui.SetPainLevel(snaps_accumulated);

@@ -15,7 +15,7 @@ public class DisplayDecibals : MonoBehaviour
 
     public void Update()
     {
-        float displayDb = Mathf.Lerp(30f, 120f, noiseController.playerNoise);
+        float displayDb = Mathf.Lerp(0f, 120f, noiseController.playerNoise);
         text.text = $"{Mathf.RoundToInt(displayDb)} dB";
     }
 }
