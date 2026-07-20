@@ -15,6 +15,7 @@ public class BabyManager : MonoBehaviour
     [SerializeField] float fearGain = 10f;
     [Header("UI")]
     [SerializeField] private FearMeter fearMeter;
+    public bool comfort;
 
     [Header("Timers")]
     [SerializeField] float actionTime = 5f;
