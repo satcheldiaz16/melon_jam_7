@@ -14,10 +14,10 @@ OcclusionCullingSettings:
 RenderSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 10
-  m_Fog: 0
+  m_Fog: 1
   m_FogColor: {r: 0.05629228, g: 0.057335097, b: 0.103773594, a: 1}
   m_FogMode: 2
-  m_FogDensity: 0.126
+  m_FogDensity: 0.077
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
   m_AmbientSkyColor: {r: 0, g: 0, b: 0, a: 1}
@@ -35850,26 +35850,26 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae39485f6e115c64e9cca96272e6d144, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerSnap
+  baby: {fileID: 1214577218}
   noiseController: {fileID: 1101713159}
   shootVol: 0.9
   hand_anim: {fileID: 1656861408}
   ui: {fileID: 435588040}
+  snap_indicator: {fileID: 993596286}
   cam: {fileID: 727525814}
   snap_layers:
     serializedVersion: 2
     m_Bits: 183
-  snap_indicator: {fileID: 993596286}
-  spark_prefab: {fileID: 1213307472783144787, guid: c356ae41cfeb1f049819a1c61eb96b0a, type: 3}
-  max_snap_distance: 100
   spark_sfx: {fileID: 1399533340}
   ouch_sfx: {fileID: 1293036418}
+  spark_prefab: {fileID: 1213307472783144787, guid: c356ae41cfeb1f049819a1c61eb96b0a, type: 3}
+  infinite_snaps: 0
+  snap_acquired: 0
+  max_snap_distance: 100
   snap_recover_time: 2.5
   full_snap_recover_time: 5
   snaps_accumulated: 0
   worn_out: 0
-  infinite_snaps: 0
-  baby: {fileID: 1214577218}
-  snap_acquired: 0
 --- !u!114 &1689057760
 MonoBehaviour:
   m_ObjectHideFlags: 0
