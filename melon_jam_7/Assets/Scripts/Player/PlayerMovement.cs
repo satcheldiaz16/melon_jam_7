@@ -1,6 +1,3 @@
-
-using System.Collections;
-using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
 public enum PlayerMovementState
@@ -9,23 +6,10 @@ public enum PlayerMovementState
     crouch,
     sprint
 }
-public class PlayerController : MonoBehaviour
+public class PlayerMovement : MonoBehaviour
 {
-    [Header("Noise")]
-    public NoiseController noiseController; 
-    public float jumpVol = .5f;
-    public float runVol = .7f;
-    public float walkVol = .3f;
-    public float crouchVol = .1f;
-
-    public PlayerInput input;
-    public static PlayerController instance;
-    [SerializeField] SphereCollider audio_target;
-    [SerializeField] Target target;
-    [Header("UI")]
     [SerializeField] Transform camera_pos;
-    [SerializeField] GameObject pause_menu;
-    [SerializeField] Animator fader;
+    [SerializeField] SphereCollider audio_target;
     [Header("Movement")]
     [SerializeField] CharacterController character_controller;
     [SerializeField] float move_speed = 5f;
@@ -38,6 +22,7 @@ public class PlayerController : MonoBehaviour
     bool crouch_input_pressed;
     float walk_sfx_timer;
     [SerializeField] float normal_height = .6f;
+    [SerializeField] float walk_sfx_time = .5f;
     [SerializeField] AudioSource walk_sfx;
     [Header("Jump")]
     [SerializeField] float jump_height = 10f;
@@ -49,18 +34,11 @@ public class PlayerController : MonoBehaviour
     [SerializeField] float crouch_speed = 2f;
     [SerializeField] float crouch_height = .3f;
     [SerializeField] float crouch_sound_radius = 2.5f;
+    [SerializeField] float crouch_sfx_time = .8f;
     [Header("Sprint")]
     [SerializeField] float sprint_speed = 8f;
     [SerializeField] float sprint_sound_radius = 25f;
-    [Header("Death")]
-    [SerializeField] DeathMenu death_menu;
-    public bool grabbed = false;
-    public bool dead = false;
-    [SerializeField] AudioSource death_sfx;
-    void Awake()
-    {
-        instance = this;
-    }
+    [SerializeField] float sprint_sfx_time = .2f;
     void Start()
     {
         character_controller = GetComponent<CharacterController>();
@@ -69,52 +47,29 @@ public class PlayerController : MonoBehaviour
     }
     void Update()
     {
-        if(dead) return;
-
         CalculateMovement();
         HandleWalkSFX();
         SetAudioTarget();
     }
+    #region Input
     public void OnMove(InputValue value)
     {
         input_movement = value.Get<Vector2>();
     }
     public void OnJump(InputValue value)
     {
-        noiseController.TriggerImpulseNoise(jumpVol);
         jump_input_pressed = value.isPressed;
     }
     public void OnSprint(InputValue value)
     {
-        noiseController.TriggerImpulseNoise(runVol);
         sprint_input_pressed = value.isPressed;
     }
     public void OnCrouch(InputValue value)
     {
-        noiseController.TriggerImpulseNoise(crouchVol);
         crouch_input_pressed = value.isPressed;
     }
-    public void OnMenu(InputValue value)
-    {
-        pause_menu.SetActive(true);
-    }
-    float GetCameraHeight()
-    {
-        if(crouch_input_pressed) return crouch_height;
-        return normal_height;
-    }
-    float GetMoveSpeed()
-    {
-        if(crouch_input_pressed) return crouch_speed;
-        else if (sprint_input_pressed) return sprint_speed;
-        return move_speed;
-    }
-    float GetWalkSFXTime()
-    {
-        if(crouch_input_pressed) return .8f;
-        else if (sprint_input_pressed) return .2f;
-        else return .5f;
-    }
+    #endregion
+    #region Audio Targetting
     float GetAudioTargetRadius()
     {
         if(input_movement==Vector2.zero){ return .01f;}
@@ -126,6 +81,32 @@ public class PlayerController : MonoBehaviour
     {
         audio_target.radius = GetAudioTargetRadius();
         audio_target.enabled = audio_target.radius >= .02f;
+    }
+    #endregion
+    #region Movement
+    float GetCameraHeight()
+    {
+        if(crouch_input_pressed) return crouch_height;
+        return normal_height;
+    }
+    float GetMoveSpeed()
+    {
+        if(crouch_input_pressed) return crouch_speed;
+        else if (sprint_input_pressed) return sprint_speed;
+        return move_speed;
+    }
+    bool IsGrounded()
+    {
+        float radius = character_controller.radius * 0.9f;
+        Vector3 origin = transform.position + character_controller.center;
+        float dist = (character_controller.height / 2f) - character_controller.radius + character_controller.skinWidth + 0.1f;
+
+        if (Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hit, dist, ground_mask, QueryTriggerInteraction.Ignore))
+        {
+            float angle = Vector3.Angle(hit.normal, Vector3.up);
+            return angle <= jump_slope_limit;
+        }
+        return false;
     }
     void CalculateMovement()
     {
@@ -155,18 +136,13 @@ public class PlayerController : MonoBehaviour
 
         camera_pos.localPosition = new Vector3(0, GetCameraHeight(), 0);
     }
-    bool IsGrounded()
+    #endregion
+    #region SFX
+    float GetWalkSFXTime()
     {
-        float radius = character_controller.radius * 0.9f;
-        Vector3 origin = transform.position + character_controller.center;
-        float dist = (character_controller.height / 2f) - character_controller.radius + character_controller.skinWidth + 0.1f;
-
-        if (Physics.SphereCast(origin, radius, Vector3.down, out RaycastHit hit, dist, ground_mask, QueryTriggerInteraction.Ignore))
-        {
-            float angle = Vector3.Angle(hit.normal, Vector3.up);
-            return angle <= jump_slope_limit;
-        }
-        return false;
+        if(crouch_input_pressed) return crouch_sfx_time;
+        else if (sprint_input_pressed) return sprint_sfx_time;
+        else return walk_sfx_time;
     }
     void HandleWalkSFX()
     {
@@ -180,21 +156,5 @@ public class PlayerController : MonoBehaviour
             walk_sfx_timer = GetWalkSFXTime();
         }
     }
-    public void EnterGrabbedState()
-    {
-        grabbed = true;
-        input.actions.FindActionMap("Player").Disable();
-        target.gameObject.SetActive(false);
-        death_sfx.Play();
-        GetComponent<PlayerSnap>().snap_acquired = false;
-    }
-    public void Die(string cause = "You Died")
-    {
-        dead = true;
-        fader.SetTrigger("die");
-        death_menu.gameObject.SetActive(true);
-        death_menu.SetCauseText(cause);
-        //GetComponent<PlayerInput>().actions.FindActionMap("Player").Disable();
-        if(!grabbed) death_sfx.Play();
-    }
+    #endregion
 }

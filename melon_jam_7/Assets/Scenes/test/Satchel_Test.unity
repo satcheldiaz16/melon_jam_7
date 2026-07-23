@@ -13101,7 +13101,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 24300002, guid: cb29f38a6f61e36488fb0c0bf8bee7a6, type: 2}
   m_audioClip: {fileID: 0}
   m_Resource: {fileID: 8300000, guid: a986c51c0b0bccb4d9c99c579e8287ec, type: 3}
-  m_PlayOnAwake: 1
+  m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
   Loop: 0
@@ -35646,6 +35646,7 @@ GameObject:
   - component: {fileID: 1689057756}
   - component: {fileID: 1689057758}
   - component: {fileID: 1689057757}
+  - component: {fileID: 1689057761}
   - component: {fileID: 1689057760}
   - component: {fileID: 1689057759}
   m_Layer: 3
@@ -35793,34 +35794,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71264977d4ac11142957fc201b15f90e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::PlayerController
+  input: {fileID: 1689057758}
   noiseController: {fileID: 1101713159}
   jumpVol: 0.5
   runVol: 0.7
   walkVol: 0.3
   crouchVol: 0.1
-  input: {fileID: 1689057758}
-  audio_target: {fileID: 843196971}
-  target: {fileID: 360095269}
-  camera_pos: {fileID: 409426734}
   pause_menu: {fileID: 869334862}
   fader: {fileID: 1533941887}
-  character_controller: {fileID: 0}
-  move_speed: 3
-  walk_sound_radius: 10
-  normal_height: 0.6
-  walk_sfx: {fileID: 353336450}
-  jump_height: 2
-  gravity: -9.81
-  jump_slope_limit: 55
-  ground_mask:
-    serializedVersion: 2
-    m_Bits: 128
-  jump_sfx: {fileID: 685006541}
-  crouch_speed: 2
-  crouch_height: 0.3
-  crouch_sound_radius: 2.5
-  sprint_speed: 6
-  sprint_sound_radius: 25
+  audio_target: {fileID: 843196971}
+  target: {fileID: 360095269}
   death_menu: {fileID: 143129637}
   grabbed: 0
   dead: 0
@@ -35903,6 +35886,40 @@ MonoBehaviour:
   camera_pos: {fileID: 409426734}
   up_tilt_limit: -85
   down_tilt_limit: 85
+--- !u!114 &1689057761
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1689057750}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bcac356020dac4a44bbbab96c6f541ee, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PlayerMovement
+  camera_pos: {fileID: 409426734}
+  audio_target: {fileID: 843196971}
+  character_controller: {fileID: 0}
+  move_speed: 5
+  walk_sound_radius: 10
+  normal_height: 0.6
+  walk_sfx_time: 0.5
+  walk_sfx: {fileID: 353336450}
+  jump_height: 2
+  gravity: -9.81
+  jump_slope_limit: 65
+  ground_mask:
+    serializedVersion: 2
+    m_Bits: 128
+  jump_sfx: {fileID: 353336450}
+  crouch_speed: 2
+  crouch_height: 0.3
+  crouch_sound_radius: 2.5
+  crouch_sfx_time: 0.8
+  sprint_speed: 8
+  sprint_sound_radius: 25
+  sprint_sfx_time: 0.2
 --- !u!4 &1690183232 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 6879619665534414026, guid: c3bc703fbde649746bd1d962062a3fb8, type: 3}

@@ -4,30 +4,30 @@ using UnityEngine;
 using UnityEngine.InputSystem;
 public class PlayerSnap : MonoBehaviour
 {
+    public BabyManager baby;
     [Header("Noise")]
     public NoiseController noiseController; 
     public float shootVol = .9f;
-
-    [Header("Snapping")]
+    [Header("UI")]
     [SerializeField] Animator hand_anim;
     [SerializeField] FingerPain ui;
+    [SerializeField] GameObject snap_indicator;
     [SerializeField] Camera cam;
     [SerializeField] LayerMask snap_layers;
-    bool palming;
-    [SerializeField] GameObject snap_indicator;
-    [SerializeField] GameObject spark_prefab;
-    [SerializeField] float max_snap_distance = 25f;
+    [Header("Audio")]
     [SerializeField] AudioSource spark_sfx;
     [SerializeField] AudioSource ouch_sfx;
+    [Header("Config")]
+    [SerializeField] GameObject spark_prefab;
+    [SerializeField] bool infinite_snaps = false;
+    public bool snap_acquired = false;
+    [SerializeField] float max_snap_distance = 25f;
     [SerializeField] float snap_recover_time = 2.5f;
     [SerializeField] float full_snap_recover_time = 10f;
     [SerializeField] int snaps_accumulated;
     [SerializeField] bool worn_out = false;
     float snap_recovery_timer;
-    [SerializeField] bool infinite_snaps = false;
-    public BabyManager baby;
-    public bool snap_acquired = false;
-  
+    bool palming;
     void Update()
     {
         hand_anim.SetBool("palming", palming);
@@ -51,7 +51,6 @@ public class PlayerSnap : MonoBehaviour
     }
     public void OnAttack(InputValue value)
     {
-        
         if(worn_out || !snap_acquired) return;
 
         hand_anim.SetTrigger("snap");
@@ -64,7 +63,9 @@ public class PlayerSnap : MonoBehaviour
         spark.GetComponent<Spark>().Ignite();
         
         spark_sfx.Play();
-        noiseController.TriggerImpulseNoise(shootVol);        if(infinite_snaps) return;
+        noiseController.TriggerImpulseNoise(shootVol);        
+        
+        if(infinite_snaps) return;
 
         snaps_accumulated++;
         ui.SetPainLevel(snaps_accumulated);
