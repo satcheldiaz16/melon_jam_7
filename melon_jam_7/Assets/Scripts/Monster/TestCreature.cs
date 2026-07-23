@@ -14,24 +14,7 @@ public class TestCreature : MonoBehaviour
 {
     [SerializeField] NavMeshAgent nav_agent;
     [SerializeField] CreatureState state;
-    [Header("Stunned")]
-    [SerializeField] bool can_be_stunned = true;
-    [SerializeField] float stunned_time = 5f;
-    [SerializeField] ParticleSystem stunned_effect;
-    float stunned_timer = 0;
-    [SerializeField] AudioSource stunned_sfx;
     List<Target> disinterested = new List<Target>();
-    [Header("Pursuit")]
-    [SerializeField] float time_to_remain_disinterested = 30f;
-    [SerializeField] float pursuit_speed;
-    float pursuit_timer = 0;
-    [SerializeField] float time_btwn_target_checks = 2f;
-    [SerializeField] int checks_before_target_loss = 3;
-    int current_num_of_checks = 0;
-    [SerializeField] AudioSource target_cue;
-    [SerializeField] AudioSource pursuit_sfx;
-    [SerializeField] UnityEvent begin_pursuit_callback;
-    [SerializeField] UnityEvent end_pursuit_callback;
     [Header("Vision")]
     [SerializeField] VisionCone vision;
     Target current_visual_target;
@@ -45,15 +28,33 @@ public class TestCreature : MonoBehaviour
     [SerializeField] float min_idle_time = 1f;
     [SerializeField] float max_idle_time = 5f;
     float wander_timer = 1;
+    [Header("Pursuit")]
+    [SerializeField] float time_to_remain_disinterested = 30f;
+    [SerializeField] float pursuit_speed;
+    float pursuit_timer = 0;
+    [SerializeField] float time_btwn_target_checks = 2f;
+    [SerializeField] int checks_before_target_loss = 3;
+    int current_num_of_checks = 0;
+    [SerializeField] AudioSource target_cue;
+    [SerializeField] AudioSource pursuit_sfx;
+    [SerializeField] UnityEvent begin_pursuit_callback;
+    [SerializeField] UnityEvent end_pursuit_callback;
     bool pursuing_visually => current_visual_target != null;
     bool pursuing_audibly => current_audio_target != null && !pursuing_visually;
-    [Header("Death")]
+    [Header("Stunned")]
+    [SerializeField] bool can_be_stunned = true;
+    [SerializeField] float stunned_time = 5f;
+    [SerializeField] ParticleSystem stunned_effect;
+    float stunned_timer = 0;
+    [SerializeField] AudioSource stunned_sfx;
+    [Header("Player Interaction")]
     [SerializeField] bool can_kill;
     [SerializeField] string death_msg = "Consumed";
     [SerializeField] float dist_to_kill = 2f;
     [SerializeField] AudioSource kill_sfx;
     [SerializeField] Transform kc_point;
     [SerializeField] Animator kc_anim;
+    #region Event Bind/Unbind
     void OnEnable()
     {
         if (vision)
@@ -76,45 +77,42 @@ public class TestCreature : MonoBehaviour
             hearing.TargetHeard -= Hear;
         }
     }
-    void SetPathToPosition(Vector3 position)
+    #endregion
+    void Update()
     {
-        NavMeshPath path = new NavMeshPath();
-        if(!nav_agent.CalculatePath(position, path))
+        switch (state)
         {
-            if(
-                NavMesh.SamplePosition(
-                    position,
-                    out NavMeshHit hit,
-                    15f,
-                    NavMesh.AllAreas
-                )
-            )
-            {
-                nav_agent.CalculatePath(hit.position, path);
-            }
-            else
-            {
-                Debug.LogError("Pathfinding failed on agent " + gameObject.name);
-                GameManager.instance.RemoveFromPursuingPlayer(this);
-                return;
-            }
+            case CreatureState.wander: UpdateWander(); break;
+            case CreatureState.pursuit: UpdatePursuit(); break;
+            case CreatureState.stunned: UpdateStunned(); break;
+            case CreatureState.mother: UpdateMother(); break;
         }
-        nav_agent.SetPath(path);
+        HandleWalkSFX();
     }
-    bool HasArrived()
+    #region WalkSFX
+    float walk_sfx_timer;
+    [SerializeField] AudioSource walk_sfx;
+    [SerializeField] float pursuit_sfx_time = .5f;
+    [SerializeField] float wander_sfx_time = 1f;
+    float GetWalkSFXTime()
     {
-        if (!nav_agent.pathPending)
-        {
-            if (nav_agent.remainingDistance <= nav_agent.stoppingDistance)
-            {
-                if (!nav_agent.hasPath || nav_agent.velocity.sqrMagnitude == 0f)
-                {
-                    return true;
-                }
-            }
-        }
-        return false;
+        if(state == CreatureState.pursuit) return pursuit_sfx_time;
+        else return wander_sfx_time;
     }
+    void HandleWalkSFX()
+    {
+        if(walk_sfx_timer > 0)
+        {
+            walk_sfx_timer-=Time.deltaTime;
+        }
+        else if(nav_agent.velocity.sqrMagnitude > 0.01f)
+        {
+            walk_sfx.Play();
+            walk_sfx_timer = GetWalkSFXTime();
+        }
+    }
+    #endregion
+    #region Targetting
     void See(List<Target> targets)
     {
         if(targets.Count < 1 || state == CreatureState.stunned) return;
@@ -167,6 +165,105 @@ public class TestCreature : MonoBehaviour
             break;
         }
     }
+    void AddToDisinterests(Target target)
+    {
+        if (target == null || target.is_player || target.is_creature) return;
+
+        if(!disinterested.Contains(target)) disinterested.Add(target);
+        StartCoroutine(RemoveAfterDelay(target, time_to_remain_disinterested));
+    }
+    IEnumerator RemoveAfterDelay(Target target, float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        for(int i = disinterested.Count-1; i>=0; i--)
+        {
+            if(disinterested[i]==null) disinterested.RemoveAt(i);
+        }
+        if (target == null) yield return null;
+        if (disinterested.Contains(target)) disinterested.Remove(target);
+    }
+    #endregion
+    #region Pathfinding
+    void SetPathToPosition(Vector3 position)
+    {
+        NavMeshPath path = new NavMeshPath();
+        if(!nav_agent.CalculatePath(position, path))
+        {
+            if(
+                NavMesh.SamplePosition(
+                    position,
+                    out NavMeshHit hit,
+                    15f,
+                    NavMesh.AllAreas
+                )
+            )
+            {
+                nav_agent.CalculatePath(hit.position, path);
+            }
+            else
+            {
+                Debug.LogError("Pathfinding failed on agent " + gameObject.name);
+                GameManager.instance.RemoveFromPursuingPlayer(this);
+                return;
+            }
+        }
+        nav_agent.SetPath(path);
+    }
+    bool HasArrived()
+    {
+        if (!nav_agent.pathPending)
+        {
+            if (nav_agent.remainingDistance <= nav_agent.stoppingDistance)
+            {
+                if (!nav_agent.hasPath || nav_agent.velocity.sqrMagnitude == 0f)
+                {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    #endregion
+    #region Wander
+    void UpdateWander()
+    {
+        if(wander_timer > 0)
+        {
+            wander_timer -= Time.deltaTime;
+            return;
+        }
+
+        if (HasArrived())
+        {
+            nav_agent.speed = wander_speed;
+            int roll = Random.Range(0, 4);
+            if(roll < 2) // stand around
+            {
+                wander_timer = Random.Range(min_idle_time, max_idle_time);
+            }
+            else //wander
+            {
+                Vector3 wander_pos = PickWanderLocation();
+                SetPathToPosition(wander_pos);
+            }
+        }
+    }
+    Vector3 PickWanderLocation()
+    {
+        for (int i = 0; i < 25; i++)
+        {
+            Vector2 rand_offset = Random.insideUnitCircle * wander_location_radius;
+
+            Vector3 check_pos = transform.position + new Vector3(rand_offset.x, 0f, rand_offset.y);
+
+            if (NavMesh.SamplePosition(check_pos, out NavMeshHit hit, 10f, NavMesh.AllAreas))
+                return hit.position;
+        }
+
+        return transform.position; // fallback: no valid spot found
+    }
+    #endregion
+    #region Pursuit
     void BeginPursuit(Target target)
     {
         SetPathToPosition(target.transform.position);
@@ -284,23 +381,8 @@ public class TestCreature : MonoBehaviour
 
         pursuit_timer = time_btwn_target_checks;
     }
-   void AddToDisinterests(Target target)
-    {
-        if (target == null || target.is_player || target.is_creature) return;
-
-        if(!disinterested.Contains(target)) disinterested.Add(target);
-        StartCoroutine(RemoveAfterDelay(target, time_to_remain_disinterested));
-    }
-    IEnumerator RemoveAfterDelay(Target target, float delay)
-    {
-        yield return new WaitForSeconds(delay);
-        for(int i = disinterested.Count-1; i>=0; i--)
-        {
-            if(disinterested[i]==null) disinterested.RemoveAt(i);
-        }
-        if (target == null) yield return null;
-        if (disinterested.Contains(target)) disinterested.Remove(target);
-    }
+    #endregion
+    #region Stunned
     public void EnterStunnedState()
     {
         if(!can_be_stunned) return;
@@ -318,17 +400,6 @@ public class TestCreature : MonoBehaviour
 
         stunned_effect?.Play();
     }
-    void Update()
-    {
-        switch (state)
-        {
-            case CreatureState.wander: UpdateWander(); break;
-            case CreatureState.pursuit: UpdatePursuit(); break;
-            case CreatureState.stunned: UpdateStunned(); break;
-            case CreatureState.mother: UpdateMother(); break;
-        }
-        HandleWalkSFX();
-    }
     void UpdateStunned()
     {
         if(stunned_timer > 0)
@@ -340,6 +411,8 @@ public class TestCreature : MonoBehaviour
         state = CreatureState.wander;
         stunned_effect?.Stop();
     }
+    #endregion
+    #region Mother
     void UpdateMother()
     {
         if(
@@ -359,64 +432,9 @@ public class TestCreature : MonoBehaviour
         wander_timer = .1f;
         SetPathToPosition(PlayerController.instance.transform.position);
     }
-    float walk_sfx_timer;
-    [SerializeField] AudioSource walk_sfx;
-    [SerializeField] float pursuit_sfx_time = .5f;
-    [SerializeField] float wander_sfx_time = 1f;
-    float GetWalkSFXTime()
-    {
-        if(state == CreatureState.pursuit) return pursuit_sfx_time;
-        else return wander_sfx_time;
-    }
-    void HandleWalkSFX()
-    {
-        if(walk_sfx_timer > 0)
-        {
-            walk_sfx_timer-=Time.deltaTime;
-        }
-        else if(nav_agent.velocity.sqrMagnitude > 0.01f)
-        {
-            walk_sfx.Play();
-            walk_sfx_timer = GetWalkSFXTime();
-        }
-    }
-    void UpdateWander()
-    {
-        if(wander_timer > 0)
-        {
-            wander_timer -= Time.deltaTime;
-            return;
-        }
-
-        if (HasArrived())
-        {
-            nav_agent.speed = wander_speed;
-            int roll = Random.Range(0, 4);
-            if(roll < 2) // stand around
-            {
-                wander_timer = Random.Range(min_idle_time, max_idle_time);
-            }
-            else //wander
-            {
-                Vector3 wander_pos = PickWanderLocation();
-                SetPathToPosition(wander_pos);
-            }
-        }
-    }
-    Vector3 PickWanderLocation()
-    {
-        for (int i = 0; i < 25; i++)
-        {
-            Vector2 rand_offset = Random.insideUnitCircle * wander_location_radius;
-
-            Vector3 check_pos = transform.position + new Vector3(rand_offset.x, 0f, rand_offset.y);
-
-            if (NavMesh.SamplePosition(check_pos, out NavMeshHit hit, 10f, NavMesh.AllAreas))
-                return hit.position;
-        }
-
-        return transform.position; // fallback: no valid spot found
-    }
+    #endregion
+    #region Player Interaction
+    
     public void GrabPlayer()
     {
         if(PlayerController.instance.grabbed) return;
@@ -440,4 +458,5 @@ public class TestCreature : MonoBehaviour
     {
         PlayerController.instance.Die(death_msg);
     }
+    #endregion
 }
