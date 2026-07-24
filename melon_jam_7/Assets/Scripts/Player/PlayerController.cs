@@ -1,5 +1,6 @@
 
 using System.Collections;
+using Unity.Mathematics;
 using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -7,12 +8,6 @@ public class PlayerController : MonoBehaviour
 {
     public PlayerInput input;
     public static PlayerController instance;
-    [Header("Noise")]
-    public NoiseController noiseController; 
-    public float jumpVol = .5f;
-    public float runVol = .7f;
-    public float walkVol = .3f;
-    public float crouchVol = .1f;
     [Header("UI")]
     [SerializeField] GameObject pause_menu;
     [SerializeField] Animator fader;
@@ -35,6 +30,7 @@ public class PlayerController : MonoBehaviour
     {
 
     }
+
     public void OnMenu(InputValue value)
     {
         pause_menu.SetActive(true);

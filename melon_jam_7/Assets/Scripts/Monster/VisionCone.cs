@@ -10,6 +10,7 @@ public class VisionCone : MonoBehaviour
     [SerializeField] float view_angle = 60f;   // full cone angle
     [SerializeField] LayerMask target_mask;
     [SerializeField] LayerMask obstacle_mask;
+    
     public event System.Action<List<Target>> TargetSpotted;
     void Start() => InvokeRepeating(nameof(VisionCheck), Random.Range(0f, 0.2f), 0.2f);
     void VisionCheck()

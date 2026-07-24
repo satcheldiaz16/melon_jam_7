@@ -6,7 +6,7 @@ public enum PlayerMovementState
     crouch,
     sprint
 }
-public class PlayerMovement : MonoBehaviour
+public class PlayerMovement : MonoBehaviour, givePerception
 {
     [SerializeField] Transform camera_pos;
     [SerializeField] SphereCollider audio_target;
@@ -39,6 +39,9 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] float sprint_speed = 8f;
     [SerializeField] float sprint_sound_radius = 25f;
     [SerializeField] float sprint_sfx_time = .2f;
+    [Header("Perceptibles")]
+    public float curLight = 0;
+    public float curVolume = 0;
     void Start()
     {
         character_controller = GetComponent<CharacterController>();
@@ -51,6 +54,7 @@ public class PlayerMovement : MonoBehaviour
         HandleWalkSFX();
         SetAudioTarget();
     }
+    
     #region Input
     public void OnMove(InputValue value)
     {
@@ -67,6 +71,13 @@ public class PlayerMovement : MonoBehaviour
     public void OnCrouch(InputValue value)
     {
         crouch_input_pressed = value.isPressed;
+    }
+    #endregion
+    #region Perception
+    public Perceivables givePerception()
+    {
+        Perceivables player = new Perceivables(curVolume, curLight);
+        return player;
     }
     #endregion
     #region Audio Targetting
